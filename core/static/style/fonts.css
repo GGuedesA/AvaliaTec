@@ -1,0 +1,53 @@
+@font-face {
+    font-family: "Creato Display";
+    src: url("/static/font/CreatoDisplay-Thin.otf") format("opentype");
+    font-weight: 200;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Creato Display";
+    src: url("/static/font/CreatoDisplay-Light.otf") format("opentype");
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Creato Display";
+    src: url("/static/font/CreatoDisplay-Regular.otf") format("opentype");
+    font-weight: 400;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Creato Display";
+    src: url("/static/font/CreatoDisplay-Medium.otf") format("opentype");
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Creato Display";
+    src: url("/static/font/CreatoDisplay-Bold.otf") format("opentype");
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Creato Display";
+    src: url("/static/font/CreatoDisplay-ExtraBold.otf") format("opentype");
+    font-weight: 800;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Creato Display";
+    src: url("/static/font/CreatoDisplay-Black.otf") format("opentype");
+    font-weight: 900;
+    font-style: italic;
+}
+
+* {
+    font-family: "Creato Display", sans-serif;
+}
+

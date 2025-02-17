@@ -1,0 +1,212 @@
+
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+    <!-- banner -->
+    <section class="banner">
+        <div class="container">
+            <p class="banner-descricao">
+                Contrate qualquer serviço, a qualquer momento e de qualquer lugar.
+            </p>
+            <h1 class="banner-titulo">
+                SOLUÇÃO EM UM PASSO<br>
+                PARA OS SEUS SERVIÇOS
+            </h1>
+            <form class="search-banner">
+                <select name="" id="">
+                    <option value="sp" selected>São Paulo</option>
+                    <option value="RJ">Rio de Janeiro</option>
+                    <option value="sp">São Paulo</option>
+                    <option value="sp">São Paulo</option>
+                </select>
+                <div class="search-buttons">
+                    <label for="search">
+                        <img src="./src/img/icon-search.svg" alt="" width="20px">
+                    </label>
+                    <input type="text" name="" id="search" placeholder="O que você está procurando...">
+                    <button>
+                        <img src="./src/img/icone-right-arrow.svg" alt="" width="25px">
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Serviços -->
+    <section class="home-servicos">
+        <div class="container">
+            <h2 class="servico-titulo">
+                Serviços em destaque
+            </h2>
+            <p class="servico-descricao">
+                É um fato estabelecido há muito tempo que um leitor se distrairá com o<br>
+                conteúdo legível de uma página ao observar seu layout.
+            </p>
+            <div class="servicos-grid">
+                <div class="servico-item">
+                    <img src="https://bytesed.com/tf/qixer/qixer_html/assets/img/service/s1.jpg" alt="" width="100%"
+                        class="img-destaque">
+                    <div class="servico-body">
+                        <div class="avatar">
+                            <img src="{% static "img/cleyson-lima.jpg" %}" alt="Foto professor" width="45px" class="img-user">
+                            <p>Cleyson Lima</p>
+                        </div>
+                        <h3>Programação Front-end</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                            labore et dolore magna aliqua.</p>
+                        <a href="" class="servico-link">Iniciando em</a><span> R$100</span>
+                        <a href="./detalhes.html" class="servico-agendar">Ver detalhes</a>
+                    </div>
+                </div>
+                <div class="servico-item">
+                    <img src="https://bytesed.com/tf/qixer/qixer_html/assets/img/service/s1.jpg" alt="" width="100%"
+                        class="img-destaque">
+                    <div class="servico-body">
+                        <div class="avatar">
+                            <img src="{% static "img/cleyson-lima.jpg" %}" alt="Foto professor" width="45px" class="img-user">
+                            <p>Cleyson Lima</p>
+                        </div>
+                        <h3>Programação Front-end</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                            labore et dolore magna aliqua.</p>
+                        <a href="" class="servico-link">Iniciando em</a><span> R$100</span>
+                        <a href="./detalhes.html" class="servico-agendar">Ver detalhes</a>
+                    </div>
+                </div>
+                <div class="servico-item">
+                    <img src="https://bytesed.com/tf/qixer/qixer_html/assets/img/service/s1.jpg" alt="" width="100%"
+                        class="img-destaque">
+                    <div class="servico-body">
+                        <div class="avatar">
+                            <img src="{% static "img/cleyson-lima.jpg" %}" alt="Foto professor" width="45px" class="img-user">
+                            <p>Cleyson Lima</p>
+                        </div>
+                        <h3>Programação Front-end</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                            labore et dolore magna aliqua.</p>
+                        <a href="" class="servico-link">Iniciando em</a><span> R$100</span>
+                        <a href="./detalhes.html" class="servico-agendar">Ver detalhes</a>
+                    </div>
+                </div>
+                <div class="servico-item">
+                    <img src="https://bytesed.com/tf/qixer/qixer_html/assets/img/service/s1.jpg" alt="" width="100%"
+                        class="img-destaque">
+                    <div class="servico-body">
+                        <div class="avatar">
+                            <img src="{% static "img/cleyson-lima.jpg" %}" alt="Foto professor" width="45px" class="img-user">
+                            <p>Cleyson Lima</p>
+                        </div>
+                        <h3>Programação Front-end</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                            labore et dolore magna aliqua.</p>
+                        <a href="" class="servico-link">Iniciando em</a><span> R$100</span>
+                        <a href="./detalhes.html" class="servico-agendar">Ver detalhes</a>
+                    </div>
+                </div>
+                <div class="servico-item">
+                    <img src="https://bytesed.com/tf/qixer/qixer_html/assets/img/service/s1.jpg" alt="" width="100%"
+                        class="img-destaque">
+                    <div class="servico-body">
+                        <div class="avatar">
+                            <img src="{% static "img/cleyson-lima.jpg" %}" alt="Foto professor" width="45px" class="img-user">
+                            <p>Cleyson Lima</p>
+                        </div>
+                        <h3>Programação Front-end</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                            labore et dolore magna aliqua.</p>
+                        <a href="" class="servico-link">Iniciando em</a><span> R$100</span>
+                        <a href="./detalhes.html" class="servico-agendar">Ver detalhes</a>
+                    </div>
+                </div>
+                <div class="servico-item">
+                    <img src="https://bytesed.com/tf/qixer/qixer_html/assets/img/service/s1.jpg" alt="" width="100%"
+                        class="img-destaque">
+                    <div class="servico-body">
+                        <div class="avatar">
+                            <img src="{% static "img/cleyson-lima.jpg" %}" alt="Foto professor" width="45px" class="img-user">
+                            <p>Cleyson Lima</p>
+                        </div>
+                        <h3>Programação Front-end</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                            labore et dolore magna aliqua.</p>
+                        <a href="" class="servico-link">Iniciando em</a><span> R$100</span>
+                        <a href="./detalhes.html" class="servico-agendar">Ver detalhes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Porque -->
+    <section class="porque">
+        <div class="container">
+            <h2 class="porque-titulo">
+                Por que nosso mercado?
+            </h2>
+            <p class="porque-descricao">
+                É um fato estabelecido há muito tempo que um leitor se distrairá com o<br>
+                conteúdo legível de uma página ao observar seu layout.
+            </p>
+
+            <div class="porque-grid">
+                <div class="porque-item">
+                    <div class="porque-img">
+                        <img src="{% static "img/icone-servico.svg" %}" alt="">
+                    </div>
+                    <h3 class="porque-servico-titulo">Service Commitment</h3>
+                    <p class="porque-servico-descricao">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                        eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+
+                <div class="porque-item">
+                    <div class="porque-img">
+                        <img src="{% static "img/icone-servico.svg" %}" alt="">
+                    </div>
+                    <h3 class="porque-servico-titulo">Service Commitment</h3>
+                    <p class="porque-servico-descricao">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                        eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+
+                <div class="porque-item">
+                    <div class="porque-img">
+                        <img src="{% static "img/icone-servico.svg" %}" alt="">
+                    </div>
+                    <h3 class="porque-servico-titulo">Service Commitment</h3>
+                    <p class="porque-servico-descricao">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                        eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+
+                <div class="porque-item">
+                    <div class="porque-img">
+                        <img src="{% static "img/icone-servico.svg" %}" alt="">
+                    </div>
+                    <h3 class="porque-servico-titulo">Service Commitment</h3>
+                    <p class="porque-servico-descricao">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                        eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+
+                <div class="porque-item">
+                    <div class="porque-img">
+                        <img src="{% static "img/icone-servico.svg" %}" alt="">
+                    </div>
+                    <h3 class="porque-servico-titulo">Service Commitment</h3>
+                    <p class="porque-servico-descricao">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                        eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+
+                <div class="porque-item">
+                    <div class="porque-img">
+                        <img src="{% static "img/icone-servico.svg" %}" alt="">
+                    </div>
+                    <h3 class="porque-servico-titulo">Service Commitment</h3>
+                    <p class="porque-servico-descricao">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                        eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock content %}
+

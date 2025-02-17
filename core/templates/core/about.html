@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+
+    <!-- info página -->
+    <section class="pagina-info">
+        <div class="container">
+            <p>
+                Sobre nós
+            </p>
+        </div>
+    </section>
+
+    <!-- Conheça sobre nós -->
+    <section class="sobre">
+        <div class="container">
+            <sobre class="sobre-grid">
+                <img src="https://bytesed.com/tf/qixer/qixer_html/assets/img/about/about.jpg" alt="Imagem ilustrativa"
+                    width="100%">
+                <div class="sobre-info">
+                    <h2 class="sobre-titulo">
+                        Conheça sobre nós
+                    </h2>
+                    <p>
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                        laboris nisi ut aliquip ex ea commodo consequat.
+                    </p>
+                    <ul class="sobre-lista">
+                        <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod </li>
+                        <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod </li>
+                        <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod </li>
+                        <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod </li>
+                    </ul>
+                </div>
+            </sobre>
+        </div>
+    </section>
+
+    <section class="sobre-porque">
+        <div class="container">
+            <h2 class="sobre-porque-titulo">
+                Por que nosso mercado?
+            </h2>
+
+            <p class="sobre-porque-descricao">
+                É um fato estabelecido há muito tempo que um leitor se distrairá com o<br>
+                conteúdo legível de uma página ao observar seu layout.
+            </p>
+            <div class="porque-grid">
+                <div class="porque-item">
+                    <div class="porque-img">
+                        <img src="{% static "img/icone-servico.svg" %}" alt="">
+                    </div>
+                    <h3 class="porque-servico-titulo">Service Commitment</h3>
+                    <p class="porque-servico-descricao">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                        eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+
+                <div class="porque-item">
+                    <div class="porque-img">
+                        <img src="{% static "img/icone-servico.svg" %}" alt="">
+                    </div>
+                    <h3 class="porque-servico-titulo">Service Commitment</h3>
+                    <p class="porque-servico-descricao">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                        eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+
+                <div class="porque-item">
+                    <div class="porque-img">
+                        <img src="{% static "img/icone-servico.svg" %}" alt="">
+                    </div>
+                    <h3 class="porque-servico-titulo">Service Commitment</h3>
+                    <p class="porque-servico-descricao">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                        eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+
+                <div class="porque-item">
+                    <div class="porque-img">
+                        <img src="{% static "img/icone-servico.svg" %}" alt="">
+                    </div>
+                    <h3 class="porque-servico-titulo">Service Commitment</h3>
+                    <p class="porque-servico-descricao">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                        eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+
+                <div class="porque-item">
+                    <div class="porque-img">
+                        <img src="{% static "img/icone-servico.svg" %}" alt="">
+                    </div>
+                    <h3 class="porque-servico-titulo">Service Commitment</h3>
+                    <p class="porque-servico-descricao">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                        eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+
+                <div class="porque-item">
+                    <div class="porque-img">
+                        <img src="{% static "img/icone-servico.svg" %}" alt="">
+                    </div>
+                    <h3 class="porque-servico-titulo">Service Commitment</h3>
+                    <p class="porque-servico-descricao">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                        eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comece como prestador -->
+    <section class="prestador">
+        <div class="container">
+            <div class="prestador-grid">
+                <div class="prestador-item">
+                    <h2 class="prestador-titulo">
+                        Comece como prestador
+                    </h2>
+                    <p class="prestador-descricao">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                        laboris nisi ut aliquip ex ea commodo consequat.
+                    </p>
+                    <ul>
+                        <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+                        </li>
+                        <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+                        </li>
+                    </ul>
+                    <a href="./cadastro-prestador.html" class="btn-green">Seja um prestador</a>
+                </div>
+                <div class="prestador-item">
+                    <img src="https://bytesed.com/tf/qixer/qixer_html/assets/img/seller/seller2.jpg" alt=""
+                        width="100%">
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    
+{% endblock content %}
+
