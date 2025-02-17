@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from datetime import datetime
 from accounts.models import Usuario
-from administrative.models import Banca, Coordination, Room, AgendamentoSala
+from administrative.models import Banca, Coordination, Room, AgendamentoSala, Block
 
 
+# ==================== Serializer para Banca ====================
 class BancaSerializer(serializers.ModelSerializer):
     fk_professores_banca = serializers.PrimaryKeyRelatedField(
         queryset=Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER),
@@ -84,7 +85,7 @@ class BancaSerializer(serializers.ModelSerializer):
 
         return data
 
-
+# ==================== Serializer para Agendamento ====================
 class AgendamentoSalaSerializer(serializers.ModelSerializer):
     professor = serializers.PrimaryKeyRelatedField(
         queryset=Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER), required=True
@@ -147,3 +148,25 @@ class AgendamentoSalaSerializer(serializers.ModelSerializer):
         if value.role != Usuario.RoleChoices.TEACHER:
             raise serializers.ValidationError("O usuário não é um professor.")
         return value
+
+# ==================== Serializer para Block ====================
+class BlockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Block
+        fields = ['id', 'name']
+
+# ==================== Serializer para Coordination ====================
+class CoordinationSerializer(serializers.ModelSerializer):
+    blocks = BlockSerializer(many=True)  # Relacionamento ManyToMany com Block
+
+    class Meta:
+        model = Coordination
+        fields = ['id', 'name', 'blocks']
+
+# ==================== Serializer para Room ====================
+class RoomSerializer(serializers.ModelSerializer):
+    block = BlockSerializer()  # Relacionamento ForeignKey com Block
+
+    class Meta:
+        model = Room
+        fields = ['id', 'name', 'block']
