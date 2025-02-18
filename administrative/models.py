@@ -1,5 +1,6 @@
 from django.db import models
 from accounts.models import Usuario
+from django.core.exceptions import ValidationError
 
 
 class Block(models.Model):
@@ -32,10 +33,7 @@ class Banca(models.Model):
 
     class StatusBanca(models.TextChoices):
         ANALISE = "analise", "Em Análise"
-        ACEITA = (
-            "aceita",
-            "Aceita",
-        )
+        ACEITA = "aceita", "Aceita"
         ANDAMENTO = "andamento", "Em Andamento"
         FINALIZADA = "finalizada", "Finalizada"
 
@@ -57,7 +55,6 @@ class Banca(models.Model):
         Usuario,
         related_name="bancas_professores",
         limit_choices_to={"role": Usuario.RoleChoices.TEACHER},
-        help_text="Deve haver entre 3 e 5 professores na banca.",
     )
     sala = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="bancas")
     alunos_nomes = models.TextField(
@@ -71,11 +68,9 @@ class Banca(models.Model):
     status = models.CharField(
         max_length=10, choices=StatusBanca.choices, default=StatusBanca.ANALISE
     )
-
     coordination = models.ForeignKey(Coordination, on_delete=models.CASCADE)
 
     def clean(self):
-        from django.core.exceptions import ValidationError
         from datetime import datetime
 
         data_inicio = datetime.combine(self.data, self.horario_inicio)
@@ -91,16 +86,8 @@ class Banca(models.Model):
             if data_inicio < existing_end and data_fim > existing_start:
                 raise ValidationError("A sala já está ocupada neste horário.")
 
-        if not (3 <= self.professores_banca.count() <= 5):
-            raise ValidationError("A banca deve ter entre 3 e 5 professores.")
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return f"{self.tema} - {self.get_tipo_display()}"
-
 
 class AgendamentoSala(models.Model):
     class StatusAgendamento(models.TextChoices):

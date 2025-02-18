@@ -1,13 +1,17 @@
 from django.shortcuts import render, redirect
 from rest_framework_simplejwt.views import TokenBlacklistView
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import authenticate
 from rest_framework import status
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
+from django.contrib import messages
+from django.views.decorators.http import require_POST
 
-from .forms import RegisterForm
+from .forms import RegisterForm, LoginForm
 from .models import Usuario
 from .serializers import UsuarioSerializer
 from .permissions import UsuarioPermission
@@ -21,17 +25,62 @@ def register(request):
     return render(request, "accounts/register.html", {"form": form})
 
 
+def login_view(request):
+    form = LoginForm(request.POST or None)
+
+    if request.method == "POST":
+        if form.is_valid():
+            cpf = form.cleaned_data["cpf"]
+            password = form.cleaned_data["password"]
+            user = authenticate(request, username=cpf, password=password)
+
+            if user:
+                # Gerar tokens JWT
+                refresh = RefreshToken.for_user(user)
+                access_token = str(refresh.access_token)
+                refresh_token = str(refresh)
+
+                # Salvar tokens na sessão para uso posterior
+                request.session["access_token"] = access_token
+                request.session["refresh_token"] = refresh_token
+
+                # Salvar tipo de usuário na sessão
+                request.session["user_role"] = user.role
+
+                messages.success(request, "Login realizado com sucesso!")
+                return redirect("core:service")  # Redireciona para core:service
+            else:
+                form.add_error(None, "CPF ou senha inválidos")
+
+    return render(request, "accounts/login.html", {"form": form})
+
+
+@require_POST
+def logout_view(request):
+    # Remover tokens da sessão
+    refresh_token = request.session.pop("refresh_token", None)
+    request.session.pop("access_token", None)
+    request.session.pop("user_role", None)
+
+    if refresh_token:
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        except Exception as e:
+            print(f"Erro ao invalidar o token: {e}")
+
+    messages.success(request, "Logout realizado com sucesso!")
+    return redirect("accounts:login")  # Redireciona para login após logout
+
+
 # ==================== Listagem de Professores ===============
 class TeacherList(APIView):
     permission_classes = [UsuarioPermission]
 
     def get(self, request):
-        """Retorna uma lista de professores filtrados pelo nome."""
-        q = request.query_params.get("search", "")
-        teachers = Usuario.objects.filter(
-            role=Usuario.RoleChoices.TEACHER, name__icontains=q
-        )
-        serializer = UsuarioSerializer(teachers, many=True)
+        search = request.GET.get("search", "")
+        professores = Usuario.objects.filter(name__icontains=search)
+        serializer = UsuarioSerializer(professores, many=True)
         return Response(serializer.data)
 
     def post(self, request):

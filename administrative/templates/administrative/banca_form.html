@@ -1,0 +1,90 @@
+<!-- filepath: /c:/Users/Gabriel/Desktop/AvaliaTec/administrative/templates/administrative/banca_form.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+    <section class="form-section">
+        <div class="container">
+            <h2>Create Banca</h2>
+            <form id="bancaForm" method="POST">
+                {% csrf_token %}
+                <div class="form-item">
+                    <label for="orientador">Orientador*</label>
+                    {{ form.orientador }}
+                </div>
+                <div class="form-item">
+                    <label for="co_orientador">Co-Orientador</label>
+                    {{ form.co_orientador }}
+                </div>
+                <div class="form-item">
+                    <label for="professores_banca">Professores da Banca*</label>
+                    <select id="professorSelect">
+                        {% for professor in form.professores_banca.field.queryset %}
+                            <option value="{{ professor.id }}">{{ professor.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" id="addProfessorButton">Adicionar Professor</button>
+                    <ul id="selectedProfessoresList"></ul>
+                </div>
+                <div class="form-item">
+                    <label for="sala">Sala*</label>
+                <div class="form-item">
+                    <label for="alunos_nomes">Nomes dos Alunos*</label>
+                    {{ form.alunos_nomes }}
+                </div>
+                <div class="form-item">
+                    <label for="tema">Tema*</label>
+                    {{ form.tema }}
+                </div>
+                <div class="form-item">
+                    <label for="tipo">Tipo*</label>
+                    {{ form.tipo }}
+                </div>
+                <div class="form-item">
+                    <label for="data">Data*</label>
+                    {{ form.data }}
+                </div>
+                <div class="form-item">
+                    <label for="horario_inicio">Horário de Início*</label>
+                    {{ form.horario_inicio }}
+                </div>
+                <div class="form-item">
+                    <label for="horario_fim">Horário de Fim*</label>
+                    {{ form.horario_fim }}
+                </div>
+                <div class="form-item">
+                    <label for="status">Status*</label>
+                    {{ form.status }}
+                </div>
+                <div class="form-item">
+                    <label for="coordination">Coordenação*</label>
+                    {{ form.coordination }}
+                </div>
+                <button type="submit" class="btn-green">Submit</button>
+            </form>
+        </div>
+    </section>
+</main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const professoresBancaSelect = document.getElementById("professores_banca");
+        const form = document.querySelector("form");
+
+        form.addEventListener("submit", function (event) {
+            const selectedProfessores = Array.from(professoresBancaSelect.selectedOptions).map(option => option.value);
+            const professoresBancaInput = document.createElement("input");
+            professoresBancaInput.type = "hidden";
+            professoresBancaInput.name = "professores_banca";
+            professoresBancaInput.value = JSON.stringify(selectedProfessores);
+            form.appendChild(professoresBancaInput);
+        });
+
+        // Set default status to "analise"
+        const statusField = document.querySelector("select[name='status']");
+        if (statusField) {
+            statusField.value = "analise";
+        }
+    });
+</script>
+{% endblock content %}

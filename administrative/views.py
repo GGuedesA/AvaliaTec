@@ -1,10 +1,105 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render, redirect
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Banca, AgendamentoSala, Block, Coordination, Room
-from .serializers import BancaSerializer, AgendamentoSalaSerializer, BlockSerializer, CoordinationSerializer, RoomSerializer
+from .serializers import (
+    BancaSerializer,
+    AgendamentoSalaSerializer,
+    BlockSerializer,
+    CoordinationSerializer,
+    RoomSerializer,
+)
+from .forms import BlockForm, CoordinationForm, RoomForm, BancaForm, AgendamentoSalaForm
+import json
+from django.http import JsonResponse
+from django.views.generic import ListView
+
+
+def banca(request):
+    return render(request, "administrative/banca.html")
+
+
+def create_block(request):
+    if request.method == "POST":
+        form = BlockForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(
+                "administrative:block_list"
+            )  # Redirect to a list view or success page
+    else:
+        form = BlockForm()
+    return render(request, "administrative/block_form.html", {"form": form})
+
+
+def create_coordination(request):
+    if request.method == "POST":
+        form = CoordinationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(
+                "administrative:coordination_list"
+            )  # Redirect to a list view or success page
+    else:
+        form = CoordinationForm()
+    return render(request, "administrative/coordination_form.html", {"form": form})
+
+
+def create_room(request):
+    if request.method == "POST":
+        form = RoomForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(
+                "administrative:room_list"
+            )  # Redirect to a list view or success page
+    else:
+        form = RoomForm()
+    return render(request, "administrative/room_form.html", {"form": form})
+
+
+def create_banca(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        form = BancaForm(data)
+        if form.is_valid():
+            banca = form.save(commit=False)
+            banca.save()
+            form.save_m2m()  # Save the many-to-many relationships
+            return JsonResponse({"success": True})
+        else:
+            return JsonResponse({"errors": form.errors}, status=400)
+    else:
+        form = BancaForm()
+    return render(request, "administrative/banca_form.html", {"form": form})
+
+
+def create_agendamento(request):
+    if request.method == "POST":
+        form = AgendamentoSalaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(
+                "administrative:agendamento_list"
+            )  # Redirect to a list view or success page
+    else:
+        form = AgendamentoSalaForm()
+    return render(request, "administrative/agendamento_form.html", {"form": form})
+
+
+def get_salas(request):
+    bloco = request.GET.get('bloco')
+    if bloco:
+        salas = Room.objects.filter(block__name__icontains=bloco)
+        salas_data = [{"id": sala.id, "nome": sala.name} for sala in salas]
+        return JsonResponse(salas_data, safe=False)
+    return JsonResponse([], safe=False)
 
 
 # ==================== Views para Banca ====================
@@ -73,6 +168,21 @@ class BancaDetail(APIView):
 
         banca.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class BancaListView(ListView):
+    model = Banca
+    template_name = "administrative/banca_list.html"
+    context_object_name = "bancas"
+    paginate_by = 10  # Opcional: para adicionar paginação
+    
+
+class SalaListView(ListView):
+    model = AgendamentoSala
+    template_name = "administrative/salas_list.html"
+    context_object_name = "agendamentos"
+    paginate_by = 10 
+
 
 # ==================== Views para Agendamento ====================
 class AgendamentoSalaList(APIView):
@@ -221,7 +331,9 @@ class CoordinationDetail(APIView):
     def put(self, request, pk):
         """Atualiza uma coordenação existente"""
         coordination = get_object_or_404(Coordination, pk=pk)
-        serializer = CoordinationSerializer(coordination, data=request.data, partial=True)
+        serializer = CoordinationSerializer(
+            coordination, data=request.data, partial=True
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -239,7 +351,6 @@ class RoomList(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        """Lista todas as salas"""
         rooms = Room.objects.all()
         serializer = RoomSerializer(rooms, many=True)
         return Response(serializer.data)

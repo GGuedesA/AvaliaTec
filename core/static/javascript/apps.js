@@ -29,3 +29,14 @@ function closeAllSubMenus(){
     ul.previousElementSibling.classList.remove('rotate')
   })
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const bancaCard = document.getElementById('bancaCard');
+
+    if (bancaCard) {
+        bancaCard.addEventListener('click', function() {
+            const url = bancaCard.getAttribute('data-url');
+            window.location.href = url;
+        });
+    }
+});

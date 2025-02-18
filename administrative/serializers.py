@@ -4,24 +4,22 @@ from accounts.models import Usuario
 from administrative.models import Banca, Coordination, Room, AgendamentoSala, Block
 
 
-# ==================== Serializer para Banca ====================
 class BancaSerializer(serializers.ModelSerializer):
-    fk_professores_banca = serializers.PrimaryKeyRelatedField(
-        queryset=Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER),
-        required=False,
+    professores_banca = serializers.PrimaryKeyRelatedField(
+        queryset=Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER), many=True
     )
-    fk_coordination = serializers.PrimaryKeyRelatedField(
+    coordination = serializers.PrimaryKeyRelatedField(
         queryset=Coordination.objects.all(),
-        required=True,  # Agora é obrigatório
+        required=True,
     )
-    fk_sala = serializers.PrimaryKeyRelatedField(
+    sala = serializers.PrimaryKeyRelatedField(
         queryset=Room.objects.all(), required=False
     )
     alunos_nomes = serializers.CharField(required=False)
     tema = serializers.CharField(required=False)
-    tipo_banca = serializers.CharField(required=False)
+    tipo = serializers.CharField(required=False)
     status = serializers.CharField(required=False)
-    data_aula = serializers.DateField(required=False)
+    data = serializers.DateField(required=False)
     horario_inicio = serializers.TimeField(required=False)
     horario_fim = serializers.TimeField(required=False)
 
@@ -29,21 +27,21 @@ class BancaSerializer(serializers.ModelSerializer):
         model = Banca
         fields = [
             "id",
-            "fk_orientador",
-            "fk_professores_banca",
-            "fk_co_orientadores",
-            "fk_sala",
+            "orientador",
+            "co_orientador",
+            "professores_banca",
+            "sala",
             "alunos_nomes",
             "tema",
-            "tipo_banca",
-            "fk_coordination",  # Apenas a coordenação é referenciada
+            "tipo",
+            "coordination",
             "status",
-            "data_aula",
+            "data",
             "horario_inicio",
             "horario_fim",
         ]
 
-    def validate_fk_professores_banca(self, value):
+    def validate_professores_banca(self, value):
         if len(value) < 2 or len(value) > 3:
             raise serializers.ValidationError(
                 "O número de professores da banca deve ser entre 2 e 3."
@@ -60,32 +58,32 @@ class BancaSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """Validação personalizada para garantir que não haja conflitos de agendamento de sala"""
-        fk_sala = data.get("fk_sala")
-        data_aula = data.get("data_aula")
+        sala = data.get("sala")
+        data_aula = data.get("data")
         horario_inicio = data.get("horario_inicio")
         horario_fim = data.get("horario_fim")
 
         # Verificar se a sala está ocupada
         conflicting_bancas = Banca.objects.filter(
-            fk_sala=fk_sala,
-            data_aula=data_aula,
+            sala=sala,
+            data=data_aula,
         ).exclude(id=self.instance.id if self.instance else None)
 
         for banca in conflicting_bancas:
-            existing_start = datetime.combine(banca.data_aula, banca.horario_inicio)
-            existing_end = datetime.combine(banca.data_aula, banca.horario_fim)
+            existing_start = datetime.combine(banca.data, banca.horario_inicio)
+            existing_end = datetime.combine(banca.data, banca.horario_fim)
             new_start = datetime.combine(data_aula, horario_inicio)
             new_end = datetime.combine(data_aula, horario_fim)
 
             # Verifica se os horários se sobrepõem
             if new_start < existing_end and new_end > existing_start:
                 raise serializers.ValidationError(
-                    f"A sala '{fk_sala}' já está ocupada no horário solicitado."
+                    f"A sala '{sala}' já está ocupada no horário solicitado."
                 )
 
         return data
 
-# ==================== Serializer para Agendamento ====================
+
 class AgendamentoSalaSerializer(serializers.ModelSerializer):
     professor = serializers.PrimaryKeyRelatedField(
         queryset=Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER), required=True
@@ -149,24 +147,24 @@ class AgendamentoSalaSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("O usuário não é um professor.")
         return value
 
-# ==================== Serializer para Block ====================
+
 class BlockSerializer(serializers.ModelSerializer):
     class Meta:
         model = Block
-        fields = ['id', 'name']
+        fields = ["id", "name"]
 
-# ==================== Serializer para Coordination ====================
+
 class CoordinationSerializer(serializers.ModelSerializer):
     blocks = BlockSerializer(many=True)  # Relacionamento ManyToMany com Block
 
     class Meta:
         model = Coordination
-        fields = ['id', 'name', 'blocks']
+        fields = ["id", "name", "blocks"]
 
-# ==================== Serializer para Room ====================
+
 class RoomSerializer(serializers.ModelSerializer):
     block = BlockSerializer()  # Relacionamento ForeignKey com Block
 
     class Meta:
         model = Room
-        fields = ['id', 'name', 'block']
+        fields = ["id", "name", "block"]

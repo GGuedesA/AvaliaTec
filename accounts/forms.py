@@ -29,3 +29,8 @@ class RegisterForm(UserCreationForm):
         if Usuario.objects.filter(cpf=cpf).exists():
             raise forms.ValidationError("Um usuario com este cpf ja existe")
         return cpf
+
+
+class LoginForm(forms.Form):
+    cpf = forms.CharField(required=True, label="CPF")
+    password = forms.CharField(widget=forms.PasswordInput, required=True, label="Senha")

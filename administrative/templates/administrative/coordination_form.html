@@ -1,0 +1,17 @@
+<!-- filepath: /c:/Users/Gabriel/Desktop/AvaliaTec/administrative/templates/administrative/coordination_form.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+    <section class="form-section">
+        <div class="container">
+            <h2>Create Coordination</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn-green">Submit</button>
+            </form>
+        </div>
+    </section>
+</main>
+{% endblock content %}

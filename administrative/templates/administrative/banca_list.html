@@ -1,0 +1,86 @@
+<!-- filepath: /c:/Users/Gabriel/Desktop/AvaliaTec/administrative/templates/administrative/banca_list.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+    <section class="list-section">
+        <div class="container">
+            <h2>Lista de Bancas</h2>
+            <div class="courses-container">
+                {% for banca in bancas %}
+                <div class="course">
+                    <div class="course-preview">
+                        <h1 class="course-title">{{ banca.tema }}</h1>
+                        <a href="#">{{ banca.get_tipo_display }} <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                    <div class="course-info">
+                        <h6>{{ banca.data }}</h6>
+                        <h2>{{ banca.alunos_nomes }}</h2>
+                        <p><strong>Bloco:</strong> {{ banca.sala.block.name }}</p>
+                        <p><strong>Sala:</strong> {{ banca.sala.name }}</p>
+                        <p><strong>Horário:</strong> {{ banca.horario_inicio }} - {{ banca.horario_fim }}</p>
+                        <button class="btn" data-toggle="modal" data-target="#bancaModal{{ banca.id }}">Ver Mais</button>
+                    </div>
+                </div>
+
+                <!-- Modal -->
+                <div class="modal fade" id="bancaModal{{ banca.id }}" tabindex="-1" role="dialog" aria-labelledby="bancaModalLabel{{ banca.id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="bancaModalLabel{{ banca.id }}">Detalhes da Banca</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Tema:</strong> {{ banca.tema }}</p>
+                                <p><strong>Tipo:</strong> {{ banca.get_tipo_display }}</p>
+                                <p><strong>Data:</strong> {{ banca.data }}</p>
+                                <p><strong>Alunos:</strong> {{ banca.alunos_nomes }}</p>
+                                <p><strong>Bloco:</strong> {{ banca.sala.block.name }}</p>
+                                <p><strong>Sala:</strong> {{ banca.sala.name }}</p>
+                                <p><strong>Horário:</strong> {{ banca.horario_inicio }} - {{ banca.horario_fim }}</p>
+                                <p><strong>Status:</strong> {{ banca.status }}</p>
+                                <p><strong>Orientador:</strong> {{ banca.orientador.get_full_name }}</p>
+                                {% if banca.co_orientador %}
+                                <p><strong>Co-orientador:</strong> {{ banca.co_orientador.get_full_name }}</p>
+                                {% endif %}
+                                <p><strong>Composição da Banca:</strong> 
+                                    {% for professor in banca.professores_banca.all %}
+                                        {{ professor.get_full_name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- Paginação -->
+            {% if is_paginated %}
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</main>
+{% endblock content %}

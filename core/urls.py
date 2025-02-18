@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import home, about, nav
+from .views import home, about, service
 
 app_name = "core"
 urlpatterns = [
@@ -10,5 +10,5 @@ urlpatterns = [
         about,
         name="about",
     ),
-    path("nav/", nav, name="nav"),
+    path("service/", service, name="service"),
 ]

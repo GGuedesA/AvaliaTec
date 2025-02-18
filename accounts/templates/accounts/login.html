@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% csrf_token %}
+<main>
+    <section class="pagina-info">
+        <div class="container">
+            <p>Faça login para acessar sua conta</p>
+        </div>
+    </section>
+
+    <section class="form-contato-secao">
+        <div class="container">
+            <h2>Login</h2>
+            <form class="form-contato" method="POST">
+                {% csrf_token %}
+                
+                <div class="form-item cpf">
+                    <label for="cpf">CPF</label>
+                    {{ form.cpf }}
+                </div>
+                
+                <div class="form-item senha">
+                    <label for="senha">Senha</label>
+                    {{ form.password }}
+                </div>
+
+                <button class="btn-green" type="submit">Entrar</button>
+            </form>
+        </div>
+    </section>
+</main>
+{% endblock content %}

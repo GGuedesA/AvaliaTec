@@ -11,5 +11,5 @@ def about(request):
     return render(request, "core/about.html")
 
 
-def nav(request):
-    return render(request, "core/nav.html")
+def service(request):
+    return render(request, "core/service.html")

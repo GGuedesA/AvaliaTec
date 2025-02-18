@@ -10,7 +10,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         TEACHER = "teacher", "Professor"
         SECRETARY = "secretary", "Secretário"
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, blank=True, null=True)
     cpf = models.CharField(max_length=11, unique=True)
     email = models.EmailField(unique=True, max_length=255)
 
@@ -40,7 +40,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     )
 
     USERNAME_FIELD = "cpf"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ["email"]
 
     objects = UserManager()
 
@@ -50,16 +50,21 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
             self.is_staff = True
 
             # Gerar nome de usuário baseado no campo "name"
-            name_parts = self.name.split()
-            if len(name_parts) >= 2:
-                username = f"{name_parts[0]}.{name_parts[1]}"
+            if self.name:
+                name_parts = self.name.split()
+                if len(name_parts) >= 2:
+                    username = f"{name_parts[0]}.{name_parts[1]}"
+                else:
+                    username = name_parts[0]
+                # Garantindo que não haja espaços e tudo em minúsculas
+                self.username = username.lower()
             else:
-                username = name_parts[0]
-
-            # Garantindo que não haja espaços e tudo em minúsculas
-            self.username = username.lower()
+                self.username = self.cpf  # Default to CPF if name is not provided
 
         super().save(*args, **kwargs)
+
+    def get_full_name(self):
+        return self.name
 
     def __str__(self):
         return f"{self.cpf} ({self.get_role_display()})"

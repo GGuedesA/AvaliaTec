@@ -1,13 +1,53 @@
 from django.urls import path
-from .views import BancaList, BancaDetail, AgendamentoSalaList, AgendamentoSalaDetail
+from .views import (
+    BancaList,
+    BancaDetail,
+    AgendamentoSalaList,
+    AgendamentoSalaDetail,
+    BlockList,
+    BlockDetail,
+    CoordinationList,
+    CoordinationDetail,
+    RoomList,
+    RoomDetail,
+    create_block,
+    create_coordination,
+    create_room,
+    create_banca,
+    create_agendamento,
+    BancaListView,
+    banca,
+    get_salas,
+    SalaListView,
+)
 
 app_name = "administrative"
 urlpatterns = [
-    # URLs para Banca de Defesa
-    path("bancas_list/", BancaList.as_view(), name="banca_list"),
-    path("bancas_list/<int:pk>/", BancaDetail.as_view(), name="banca_detail"),
-
-    # URLs para Agendamento de Sala
-    path("agendamentos-sala/", AgendamentoSalaList.as_view(), name="agendamento_sala_list"),
-    path("agendamentos-sala/<int:pk>/", AgendamentoSalaDetail.as_view(), name="agendamento_sala_detail"),
+    path("banca/", banca, name="banca"),
+    path("bancas/", BancaList.as_view(), name="banca_list"),
+    path("bancas/<int:pk>/", BancaDetail.as_view(), name="banca_detail"),
+    path("agendamentos/", AgendamentoSalaList.as_view(), name="agendamento_list"),
+    path(
+        "agendamentos/<int:pk>/",
+        AgendamentoSalaDetail.as_view(),
+        name="agendamento_detail",
+    ),
+    path("blocks/", BlockList.as_view(), name="block_list"),
+    path("blocks/<int:pk>/", BlockDetail.as_view(), name="block_detail"),
+    path("coordinations/", CoordinationList.as_view(), name="coordination_list"),
+    path(
+        "coordinations/<int:pk>/",
+        CoordinationDetail.as_view(),
+        name="coordination_detail",
+    ),
+    path("rooms/", RoomList.as_view(), name="room_list"),
+    path("rooms/<int:pk>/", RoomDetail.as_view(), name="room_detail"),
+    path("create_block/", create_block, name="create_block"),
+    path("create_coordination/", create_coordination, name="create_coordination"),
+    path("create_room/", create_room, name="create_room"),
+    path("create_banca/", create_banca, name="create_banca"),
+    path("create_agendamento/", create_agendamento, name="create_agendamento"),
+    path("bancas/listar/", BancaListView.as_view(), name="listar_bancas"),
+    path("salas/listar/", SalaListView.as_view(), name="listar_salas"),
+    path("salas/", get_salas, name="get_salas"),
 ]

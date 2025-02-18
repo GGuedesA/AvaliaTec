@@ -63,6 +63,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "core.middleware.TokenAuthMiddleware",
 ]
 
 ROOT_URLCONF = "setup.urls"
@@ -163,3 +164,7 @@ SIMPLE_JWT = {
     "TOKEN_REFRESH_SERIALIZER": "accounts.serializers.CustomTokenRefreshSerializer",
     "TOKEN_BLACKLIST_SERIALIZER": "accounts.serializers.CustomTokenBlacklistSerializer",
 }
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+]
