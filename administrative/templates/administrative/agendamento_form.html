@@ -1,17 +1,62 @@
-<!-- filepath: /c:/Users/Gabriel/Desktop/AvaliaTec/administrative/templates/administrative/agendamento_form.html -->
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 <main>
     <section class="form-section">
         <div class="container">
-            <h2>Create Agendamento</h2>
-            <form method="POST">
+            <h2>Agendar Sala</h2>
+            <form id="agendamentoForm" method="post" action="{% url 'administrative:create_agendamento' %}">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn-green">Submit</button>
+                <div class="form-item">
+                    <label for="professor">Professor</label>
+                    <input type="text" name="professor" id="professor" class="form-control">
+                </div>
+                <div class="form-item">
+                    <label for="sala">Sala</label>
+                    <select name="sala" id="sala" class="form-control">
+                        {% for sala in salas %}
+                            <option value="{{ sala.id }}">{{ sala.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label for="materia">Matéria</label>
+                    <input type="text" name="materia" id="materia" class="form-control">
+                </div>
+                <div class="form-item">
+                    <label for="data">Data</label>
+                    <input type="date" name="data" id="data" class="form-control">
+                </div>
+                <div class="form-item">
+                    <label for="horario_inicio">Horário de Início</label>
+                    <input type="time" name="horario_inicio" id="horario_inicio" class="form-control">
+                </div>
+                <div class="form-item">
+                    <label for="horario_fim">Horário de Fim</label>
+                    <input type="time" name="horario_fim" id="horario_fim" class="form-control">
+                </div>
+                <button type="submit" class="button-2">Agendar</button>
             </form>
         </div>
     </section>
 </main>
+
+<!-- Adicione jQuery e jQuery UI -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        $("#professor").autocomplete({
+            source: "{% url 'administrative:get_professores' %}",
+            minLength: 1,
+            select: function (event, ui) {
+                $("#professor").val(ui.item.label);
+                return false;
+            }
+        });
+    });
+</script>
 {% endblock content %}

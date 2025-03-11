@@ -1,6 +1,7 @@
 from django.db import models
 from accounts.models import Usuario
 from django.core.exceptions import ValidationError
+from datetime import datetime
 
 
 class Block(models.Model):
@@ -57,6 +58,7 @@ class Banca(models.Model):
         limit_choices_to={"role": Usuario.RoleChoices.TEACHER},
     )
     sala = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="bancas")
+    block = models.ForeignKey(Block, on_delete=models.CASCADE, related_name="bancas")
     alunos_nomes = models.TextField(
         help_text="Insira os nomes dos alunos, separados por vírgula."
     )
@@ -71,23 +73,26 @@ class Banca(models.Model):
     coordination = models.ForeignKey(Coordination, on_delete=models.CASCADE)
 
     def clean(self):
-        from datetime import datetime
-
-        data_inicio = datetime.combine(self.data, self.horario_inicio)
-        data_fim = datetime.combine(self.data, self.horario_fim)
-
         conflitos = Banca.objects.filter(sala=self.sala, data=self.data).exclude(
             id=self.id
         )
+        if conflitos.exists():
+            raise ValidationError(
+                "Já existe uma banca agendada para esta sala nesta data."
+            )
 
-        for banca in conflitos:
-            existing_start = datetime.combine(banca.data, banca.horario_inicio)
-            existing_end = datetime.combine(banca.data, banca.horario_fim)
-            if data_inicio < existing_end and data_fim > existing_start:
-                raise ValidationError("A sala já está ocupada neste horário.")
+    def update_status(self):
+        current_datetime = datetime.now()
+        banca_datetime = datetime.combine(self.data, self.horario_fim)
+        if current_datetime >= banca_datetime:
+            self.status = self.StatusBanca.FINALIZADA
+        elif current_datetime >= datetime.combine(self.data, self.horario_inicio):
+            self.status = self.StatusBanca.ANDAMENTO
+        self.save()
 
     def __str__(self):
         return f"{self.tema} - {self.get_tipo_display()}"
+
 
 class AgendamentoSala(models.Model):
     class StatusAgendamento(models.TextChoices):

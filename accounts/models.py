@@ -7,15 +7,15 @@ from .managers import UserManager
 class Usuario(AbstractBaseUser, PermissionsMixin):
     class RoleChoices(models.TextChoices):
         ADMIN = "admin", "Administrador"
-        TEACHER = "teacher", "Professor"
-        SECRETARY = "secretary", "Secretário"
+        TEACHER = "teacher", "Teacher"
+        SECRETARY = "secretary", "Secretary"
 
     name = models.CharField(max_length=100, blank=True, null=True)
     cpf = models.CharField(max_length=11, unique=True)
     email = models.EmailField(unique=True, max_length=255)
 
     role = models.CharField(
-        max_length=10, choices=RoleChoices.choices, default=RoleChoices.ADMIN
+        max_length=50, choices=RoleChoices.choices, default=RoleChoices.ADMIN
     )
 
     is_staff = models.BooleanField(default=False)

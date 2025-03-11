@@ -48,7 +48,9 @@ def login_view(request):
                 request.session["user_role"] = user.role
 
                 messages.success(request, "Login realizado com sucesso!")
-                return redirect("core:service")  # Redireciona para core:service
+                return redirect(
+                    "core:service"
+                )  # Redireciona para a lista de bancas
             else:
                 form.add_error(None, "CPF ou senha inválidos")
 

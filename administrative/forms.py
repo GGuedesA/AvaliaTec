@@ -54,5 +54,4 @@ class AgendamentoSalaForm(forms.ModelForm):
             "data",
             "horario_inicio",
             "horario_fim",
-            "status",
         ]

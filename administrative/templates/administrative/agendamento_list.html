@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<main>
+    <section class="list-section">
+        <div class="container">
+            <h2>Lista de Agendamentos de Salas</h2>
+
+            <div class="courses-container">
+                {% for agendamento in agendamentos %}
+                <div class="course">
+                    <div class="course-preview status-{{ agendamento.status|lower }}">
+                        <h1 class="course-title">{{ agendamento.materia }}</h1>
+                    </div>
+                    <div class="course-info">
+                        <h6>{{ agendamento.data }}</h6>
+                        <h2>{{ agendamento.professor.name }}</h2>
+                        <p><strong>Sala:</strong> {{ agendamento.sala.name }}</p>
+                        <p><strong>Horário:</strong> {{ agendamento.horario_inicio }} - {{ agendamento.horario_fim }}</p>
+                        <button class="btn" data-toggle="modal" data-target="#agendamentoModal{{ agendamento.id }}">Ver Mais</button>
+                        {% if request.session.user_role == 'secretary' %}
+                        <button class="button-1" onclick="confirmAgendamento({{ agendamento.id }})">Confirmar</button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Modal Ver Mais -->
+                <div class="modal fade" id="agendamentoModal{{ agendamento.id }}" tabindex="-1" role="dialog" aria-labelledby="agendamentoModalLabel{{ agendamento.id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="agendamentoModalLabel{{ agendamento.id }}">Detalhes do Agendamento</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Professor:</strong> {{ agendamento.professor.name }}</p>
+                                <p><strong>Sala:</strong> {{ agendamento.sala.name }}</p>
+                                <p><strong>Matéria:</strong> {{ agendamento.materia }}</p>
+                                <p><strong>Data:</strong> {{ agendamento.data }}</p>
+                                <p><strong>Horário de Início:</strong> {{ agendamento.horario_inicio }}</p>
+                                <p><strong>Horário de Fim:</strong> {{ agendamento.horario_fim }}</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+function confirmAgendamento(agendamentoId) {
+    fetch(`/administrative/confirm_agendamento/${agendamentoId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            console.error('Erro ao confirmar agendamento:', data.error);
+            alert('Erro ao confirmar agendamento: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao enviar requisição:', error);
+        alert('Erro ao enviar requisição. Tente novamente mais tarde.');
+    });
+}
+</script>
+{% endblock content %}

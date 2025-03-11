@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import Usuario
+from administrative.models import Coordination
 
 
 class RegisterForm(UserCreationForm):
@@ -14,9 +15,23 @@ class RegisterForm(UserCreationForm):
         label="Tipo de Usuário",
     )
 
+    fk_coordination = forms.ModelChoiceField(
+        queryset=Coordination.objects.all(),
+        required=False,
+        label="Coordenação",
+    )
+
     class Meta:
         model = Usuario
-        fields = ("name", "cpf", "email", "role", "password1", "password2")
+        fields = (
+            "name",
+            "cpf",
+            "email",
+            "role",
+            "fk_coordination",
+            "password1",
+            "password2",
+        )
 
     def clean_email(self):
         email = self.cleaned_data["email"]
@@ -29,6 +44,16 @@ class RegisterForm(UserCreationForm):
         if Usuario.objects.filter(cpf=cpf).exists():
             raise forms.ValidationError("Um usuario com este cpf ja existe")
         return cpf
+
+    def clean(self):
+        cleaned_data = super().clean()
+        role = cleaned_data.get("role")
+        fk_coordination = cleaned_data.get("fk_coordination")
+
+        if role == "secretary" and not fk_coordination:
+            self.add_error(
+                "fk_coordination", "Coordenação é obrigatória para secretários."
+            )
 
 
 class LoginForm(forms.Form):

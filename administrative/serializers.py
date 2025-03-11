@@ -5,23 +5,32 @@ from administrative.models import Banca, Coordination, Room, AgendamentoSala, Bl
 
 
 class BancaSerializer(serializers.ModelSerializer):
+    orientador = serializers.PrimaryKeyRelatedField(
+        queryset=Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER)
+    )
+    co_orientador = serializers.PrimaryKeyRelatedField(
+        queryset=Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER),
+        allow_null=True,
+        required=False,
+    )
     professores_banca = serializers.PrimaryKeyRelatedField(
-        queryset=Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER), many=True
+        queryset=Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER),
+        many=True,
     )
+
+    sala = serializers.PrimaryKeyRelatedField(queryset=Room.objects.all())
+    sala_detalhes = serializers.SerializerMethodField()
+
+    tipo = serializers.ChoiceField(choices=Banca.TipoBanca.choices)
+    tipo_label = serializers.SerializerMethodField()
+
     coordination = serializers.PrimaryKeyRelatedField(
-        queryset=Coordination.objects.all(),
-        required=True,
+        queryset=Coordination.objects.all()
     )
-    sala = serializers.PrimaryKeyRelatedField(
-        queryset=Room.objects.all(), required=False
-    )
-    alunos_nomes = serializers.CharField(required=False)
-    tema = serializers.CharField(required=False)
-    tipo = serializers.CharField(required=False)
-    status = serializers.CharField(required=False)
-    data = serializers.DateField(required=False)
-    horario_inicio = serializers.TimeField(required=False)
-    horario_fim = serializers.TimeField(required=False)
+    coordination_detalhes = serializers.SerializerMethodField()
+
+    block = serializers.PrimaryKeyRelatedField(queryset=Block.objects.all())
+    block_detalhes = serializers.SerializerMethodField()
 
     class Meta:
         model = Banca
@@ -31,57 +40,58 @@ class BancaSerializer(serializers.ModelSerializer):
             "co_orientador",
             "professores_banca",
             "sala",
+            "sala_detalhes",
             "alunos_nomes",
             "tema",
             "tipo",
+            "tipo_label",
             "coordination",
+            "coordination_detalhes",
             "status",
             "data",
             "horario_inicio",
             "horario_fim",
+            "block",
+            "block_detalhes",
         ]
 
-    def validate_professores_banca(self, value):
-        if len(value) < 2 or len(value) > 3:
-            raise serializers.ValidationError(
-                "O número de professores da banca deve ser entre 2 e 3."
-            )
-        return value
+    def get_sala_detalhes(self, obj):
+        """Retorna detalhes da sala para facilitar a exibição"""
+        return (
+            {
+                "id": obj.sala.id,
+                "name": obj.sala.name,
+                "block": obj.sala.block.name,
+            }
+            if obj.sala
+            else None
+        )
 
-    def validate_alunos_nomes(self, value):
-        nomes = value.split(",")
-        if len(nomes) < 1 or len(nomes) > 5:
-            raise serializers.ValidationError(
-                "O número de alunos deve ser entre 1 e 5."
-            )
-        return value
+    def get_tipo_label(self, obj):
+        """Retorna a representação legível do tipo"""
+        return obj.get_tipo_display() if obj.tipo else None
 
-    def validate(self, data):
-        """Validação personalizada para garantir que não haja conflitos de agendamento de sala"""
-        sala = data.get("sala")
-        data_aula = data.get("data")
-        horario_inicio = data.get("horario_inicio")
-        horario_fim = data.get("horario_fim")
+    def get_coordination_detalhes(self, obj):
+        """Retorna detalhes da coordenação"""
+        return (
+            {
+                "id": obj.coordination.id,
+                "name": obj.coordination.name,
+            }
+            if obj.coordination
+            else None
+        )
 
-        # Verificar se a sala está ocupada
-        conflicting_bancas = Banca.objects.filter(
-            sala=sala,
-            data=data_aula,
-        ).exclude(id=self.instance.id if self.instance else None)
-
-        for banca in conflicting_bancas:
-            existing_start = datetime.combine(banca.data, banca.horario_inicio)
-            existing_end = datetime.combine(banca.data, banca.horario_fim)
-            new_start = datetime.combine(data_aula, horario_inicio)
-            new_end = datetime.combine(data_aula, horario_fim)
-
-            # Verifica se os horários se sobrepõem
-            if new_start < existing_end and new_end > existing_start:
-                raise serializers.ValidationError(
-                    f"A sala '{sala}' já está ocupada no horário solicitado."
-                )
-
-        return data
+    def get_block_detalhes(self, obj):
+        """Retorna detalhes do bloco"""
+        return (
+            {
+                "id": obj.block.id,
+                "name": obj.block.name,
+            }
+            if obj.block
+            else None
+        )
 
 
 class AgendamentoSalaSerializer(serializers.ModelSerializer):

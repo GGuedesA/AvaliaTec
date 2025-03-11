@@ -19,6 +19,15 @@ from .views import (
     banca,
     get_salas,
     SalaListView,
+    get_orientadores,
+    get_salas_por_bloco,
+    get_blocos,
+    confirm_banca,
+    edit_banca,
+    generate_pdf,
+    AgendamentoSalaListView,
+    get_professores,
+    confirm_agendamento,
 )
 
 app_name = "administrative"
@@ -26,6 +35,7 @@ urlpatterns = [
     path("banca/", banca, name="banca"),
     path("bancas/", BancaList.as_view(), name="banca_list"),
     path("bancas/<int:pk>/", BancaDetail.as_view(), name="banca_detail"),
+    path("bancas/<int:pk>/edit/", edit_banca, name="edit_banca"),
     path("agendamentos/", AgendamentoSalaList.as_view(), name="agendamento_list"),
     path(
         "agendamentos/<int:pk>/",
@@ -50,4 +60,22 @@ urlpatterns = [
     path("bancas/listar/", BancaListView.as_view(), name="listar_bancas"),
     path("salas/listar/", SalaListView.as_view(), name="listar_salas"),
     path("salas/", get_salas, name="get_salas"),
+    path("get_orientadores/", get_orientadores, name="get_orientadores"),
+    path("get_salas_por_bloco/", get_salas_por_bloco, name="get_salas_por_bloco"),
+    path("get_blocos/", get_blocos, name="get_blocos"),
+    path("confirm_banca/<int:banca_id>/", confirm_banca, name="confirm_banca"),
+    path(
+        "generate_pdf/<int:banca_id>/<int:user_id>/", generate_pdf, name="generate_pdf"
+    ),
+    path(
+        "agendamentos/listar/",
+        AgendamentoSalaListView.as_view(),
+        name="agendamento_list",
+    ),
+    path("get_professores/", get_professores, name="get_professores"),
+    path(
+        "confirm_agendamento/<int:agendamento_id>/",
+        confirm_agendamento,
+        name="confirm_agendamento",
+    ),
 ]

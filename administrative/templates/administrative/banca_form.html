@@ -1,6 +1,8 @@
 <!-- filepath: /c:/Users/Gabriel/Desktop/AvaliaTec/administrative/templates/administrative/banca_form.html -->
 {% extends "base.html" %}
 
+{% load custom_filters %}
+
 {% block content %}
 <main>
     <section class="form-section">
@@ -9,78 +11,423 @@
             <form id="bancaForm" method="POST">
                 {% csrf_token %}
                 <div class="form-item">
-                    <label for="orientador">Orientador*</label>
-                    {{ form.orientador }}
+                    <label for="orientador">Orientador</label>
+                    <input type="text" id="orientador_input" class="form-control mr-2" placeholder="Digite o nome do orientador">
+                    <ul id="selected_orientador_list"></ul>
                 </div>
                 <div class="form-item">
                     <label for="co_orientador">Co-Orientador</label>
-                    {{ form.co_orientador }}
+                    <input type="text" id="co_orientador_input" class="form-control mr-2" placeholder="Digite o nome do co-orientador">
+                    <ul id="selected_co_orientador_list"></ul>
                 </div>
                 <div class="form-item">
-                    <label for="professores_banca">Professores da Banca*</label>
-                    <select id="professorSelect">
-                        {% for professor in form.professores_banca.field.queryset %}
-                            <option value="{{ professor.id }}">{{ professor.name }}</option>
+                    <label for="professores_banca">Professores da Banca</label>
+                    <div class="d-flex">
+                        <input type="text" id="professor_banca_input" class="form-control mr-2" placeholder="Digite o nome do professor">
+                        <button type="button" class="button-1" id="add_professor_button">Add</button>
+                    </div>
+                    <ul id="selected_professores_list"></ul>
+                </div>
+                <div class="form-item">
+                    <label for="block">Bloco</label>
+                    <input type="text" id="block_input" class="form-control mr-2" placeholder="Digite o nome do bloco">
+                    <ul id="selected_block_list"></ul>
+                </div>
+                <div class="form-item">
+                    <label for="sala">Sala</label>
+                    <select id="sala_select" class="form-control mr-2" style="width: auto;">
+                        <option value="">Selecione um bloco primeiro</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label for="alunos_nomes">Nomes dos Alunos</label>
+                    <div class="d-flex">
+                        <input type="text" id="aluno_nome_input" class="form-control mr-2" placeholder="Nome do Aluno">
+                        <button type="button" class="button-1" id="add_aluno_button">Add</button>
+                    </div>
+                    <ul id="selected_alunos_list"></ul>
+                </div>
+                <div class="form-item">
+                    <label for="tema">Tema</label>
+                    {{ form.tema|add_class:"form-control" }}
+                </div>
+                <div class="form-item">
+                    <label for="tipo">Tipo</label>
+                    <select id="tipo_select" class="form-control mr-2" style="width: auto;">
+                        {% for tipo in form.tipo.field.choices %}
+                            <option value="{{ tipo.0 }}">{{ tipo.1 }}</option>
                         {% endfor %}
                     </select>
-                    <button type="button" id="addProfessorButton">Adicionar Professor</button>
-                    <ul id="selectedProfessoresList"></ul>
                 </div>
                 <div class="form-item">
-                    <label for="sala">Sala*</label>
-                <div class="form-item">
-                    <label for="alunos_nomes">Nomes dos Alunos*</label>
-                    {{ form.alunos_nomes }}
+                    <label for="data">Data</label>
+                    {{ form.data|add_class:"form-control" }}
                 </div>
                 <div class="form-item">
-                    <label for="tema">Tema*</label>
-                    {{ form.tema }}
+                    <label for="horario_inicio">Horário de Início</label>
+                    <input type="time" name="horario_inicio" class="form-control" required>
                 </div>
                 <div class="form-item">
-                    <label for="tipo">Tipo*</label>
-                    {{ form.tipo }}
+                    <label for="horario_fim">Horário de Fim</label>
+                    <input type="time" name="horario_fim" class="form-control" required>
                 </div>
-                <div class="form-item">
-                    <label for="data">Data*</label>
-                    {{ form.data }}
-                </div>
-                <div class="form-item">
-                    <label for="horario_inicio">Horário de Início*</label>
-                    {{ form.horario_inicio }}
-                </div>
-                <div class="form-item">
-                    <label for="horario_fim">Horário de Fim*</label>
-                    {{ form.horario_fim }}
-                </div>
-                <div class="form-item">
-                    <label for="status">Status*</label>
+                <div class="form-item" style="display: none;">
+                    <label for="status">Status</label>
                     {{ form.status }}
                 </div>
                 <div class="form-item">
-                    <label for="coordination">Coordenação*</label>
-                    {{ form.coordination }}
+                    <label for="coordination">Coordenação</label>
+                    <select id="coordination_select" class="form-control mr-2" style="width: auto;">
+                        {% for coordination in form.coordination.field.choices %}
+                            <option value="{{ coordination.0 }}">{{ coordination.1 }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-                <button type="submit" class="btn-green">Submit</button>
+                <button type="submit" class="button-2">Submit</button>
             </form>
         </div>
     </section>
 </main>
 
+<!-- Adicione jQuery e jQuery UI -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const professoresBancaSelect = document.getElementById("professores_banca");
-        const form = document.querySelector("form");
+        const professoresBancaSelect = document.getElementById("professores_banca_select");
+        const addProfessorButton = document.getElementById("add_professor_button");
+        const selectedProfessoresList = document.getElementById("selected_professores_list");
+        const selectedProfessores = [];
+    
+        const orientadorInput = document.getElementById("orientador_input");
+        let selectedOrientador = null;
 
-        form.addEventListener("submit", function (event) {
-            const selectedProfessores = Array.from(professoresBancaSelect.selectedOptions).map(option => option.value);
-            const professoresBancaInput = document.createElement("input");
-            professoresBancaInput.type = "hidden";
-            professoresBancaInput.name = "professores_banca";
-            professoresBancaInput.value = JSON.stringify(selectedProfessores);
-            form.appendChild(professoresBancaInput);
+        const professorBancaInput = document.getElementById("professor_banca_input");
+        let selectedProfessorBanca = null;
+
+        const coOrientadorInput = document.getElementById("co_orientador_input");
+        let selectedCoOrientador = null;
+
+        const salaSelect = document.getElementById("sala_select");
+        let selectedSala = null;
+
+        const tipoSelect = document.getElementById("tipo_select");
+        let selectedTipo = null;
+
+        const coordinationSelect = document.getElementById("coordination_select");
+        let selectedCoordination = null;
+
+        const alunoNomeInput = document.getElementById("aluno_nome_input");
+        const addAlunoButton = document.getElementById("add_aluno_button");
+        const selectedAlunosList = document.getElementById("selected_alunos_list");
+        const selectedAlunos = [];
+
+        const blockInput = document.getElementById("block_input");
+        let selectedBlock = null;
+    
+        // Autocomplete para o campo de orientador
+        $(orientadorInput).autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{% url 'administrative:get_orientadores' %}",
+                    dataType: "json",
+                    data: {
+                        term: request.term
+                    },
+                    success: function(data) {
+                        response($.map(data, function(item) {
+                            return {
+                                label: item.name,
+                                value: item.id
+                            };
+                        }));
+                    }
+                });
+            },
+            minLength: 1,
+            select: function(event, ui) {
+                selectedOrientador = ui.item.value;
+                $(orientadorInput).val(ui.item.label);
+                return false;
+            }
         });
 
-        // Set default status to "analise"
+        // Autocomplete para o campo de professores da banca
+        $(professorBancaInput).autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{% url 'administrative:get_orientadores' %}", // Reutilizando a mesma URL para buscar professores
+                    dataType: "json",
+                    data: {
+                        term: request.term
+                    },
+                    success: function(data) {
+                        response($.map(data, function(item) {
+                            return {
+                                label: item.name,
+                                value: item.id
+                            };
+                        }));
+                    }
+                });
+            },
+            minLength: 1,
+            select: function(event, ui) {
+                selectedProfessorBanca = ui.item.value;
+                $(professorBancaInput).val(ui.item.label);
+                return false;
+            }
+        });
+
+        // Autocomplete para o campo de co-orientador
+        $(coOrientadorInput).autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{% url 'administrative:get_orientadores' %}",
+                    dataType: "json",
+                    data: {
+                        term: request.term
+                    },
+                    success: function(data) {
+                        response($.map(data, function(item) {
+                            return {
+                                label: item.name,
+                                value: item.id
+                            };
+                        }));
+                    }
+                });
+            },
+            minLength: 1,
+            select: function(event, ui) {
+                selectedCoOrientador = ui.item.value;
+                $(coOrientadorInput).val(ui.item.label);
+                return false;
+            }
+        });
+
+        // Autocomplete para o campo de blocos
+        $(blockInput).autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{% url 'administrative:get_blocos' %}",
+                    dataType: "json",
+                    data: {
+                        term: request.term
+                    },
+                    success: function(data) {
+                        response($.map(data, function(item) {
+                            return {
+                                label: item.name,
+                                value: item.id
+                            };
+                        }));
+                    }
+                });
+            },
+            minLength: 1,
+            select: function(event, ui) {
+                selectedBlock = ui.item.value;
+                $(blockInput).val(ui.item.label);
+                fetchSalasPorBloco(selectedBlock);
+                return false;
+            }
+        });
+
+        // Modifique a função fetchSalasPorBloco para adicionar a opção "-----"
+        function fetchSalasPorBloco(blockId) {
+            $.ajax({
+                url: "{% url 'administrative:get_salas_por_bloco' %}",
+                data: {
+                    bloco_id: blockId
+                },
+                success: function(data) {
+                    salaSelect.innerHTML = "";
+                    const defaultOption = document.createElement("option");
+                    defaultOption.value = "";
+                    defaultOption.textContent = "-----";
+                    salaSelect.appendChild(defaultOption);
+                    data.forEach(function(sala) {
+                        const option = document.createElement("option");
+                        option.value = sala.id;
+                        option.textContent = sala.nome;
+                        salaSelect.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        // Certifique-se de que o valor selecionado da sala é capturado corretamente
+        salaSelect.addEventListener("change", function () {
+            const selectedOption = salaSelect.options[salaSelect.selectedIndex];
+            selectedSala = selectedOption.value;
+            console.log(selectedSala);
+        });
+
+        tipoSelect.addEventListener("change", function () {
+            const selectedOption = tipoSelect.options[tipoSelect.selectedIndex];
+            selectedTipo = selectedOption.value;
+            console.log(selectedTipo);
+        });
+
+        coordinationSelect.addEventListener("change", function () {
+            const selectedOption = coordinationSelect.options[coordinationSelect.selectedIndex];
+            selectedCoordination = selectedOption.value;
+            console.log(selectedCoordination);
+        });
+    
+        addProfessorButton.addEventListener("click", function () {
+            const professorName = $(professorBancaInput).val();
+    
+            if (selectedProfessorBanca && !selectedProfessores.includes(selectedProfessorBanca)) {
+                selectedProfessores.push(selectedProfessorBanca);
+    
+                const professorButton = document.createElement("button");
+                professorButton.textContent = professorName;
+                professorButton.disabled = true;
+                professorButton.classList.add("selected-professor");
+    
+                const removeButton = document.createElement("button");
+                removeButton.textContent = "X";
+                removeButton.classList.add("remove-professor");
+    
+                const professorContainer = document.createElement("div");
+                professorContainer.classList.add("professor-container");
+                professorContainer.appendChild(professorButton);
+                professorContainer.appendChild(removeButton);
+    
+                selectedProfessoresList.appendChild(professorContainer);
+    
+                removeButton.addEventListener("click", function () {
+                    selectedProfessoresList.removeChild(professorContainer);
+                    const index = selectedProfessores.indexOf(selectedProfessorBanca);
+                    if (index !== -1) {
+                        selectedProfessores.splice(index, 1);
+                    }
+                });
+    
+                console.log(selectedProfessores);
+                $(professorBancaInput).val("");
+                selectedProfessorBanca = null;
+            }
+        });
+
+        addAlunoButton.addEventListener("click", function () {
+            const alunoNome = alunoNomeInput.value.trim();
+            if (alunoNome && !selectedAlunos.includes(alunoNome)) {
+                selectedAlunos.push(alunoNome);
+    
+                const alunoButton = document.createElement("button");
+                alunoButton.textContent = alunoNome;
+                alunoButton.disabled = true;
+                alunoButton.classList.add("selected-professor");
+    
+                const removeButton = document.createElement("button");
+                removeButton.textContent = "X";
+                removeButton.classList.add("remove-professor");
+    
+                const alunoContainer = document.createElement("div");
+                alunoContainer.classList.add("professor-container");
+                alunoContainer.appendChild(alunoButton);
+                alunoContainer.appendChild(removeButton);
+    
+                selectedAlunosList.appendChild(alunoContainer);
+    
+                removeButton.addEventListener("click", function () {
+                    selectedAlunosList.removeChild(alunoContainer);
+                    const index = selectedAlunos.indexOf(alunoNome);
+                    if (index !== -1) {
+                        selectedAlunos.splice(index, 1);
+                    }
+                });
+    
+                console.log(selectedAlunos);
+                alunoNomeInput.value = "";
+            }
+        });
+    
+        const form = document.getElementById("bancaForm");
+    
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const dataInput = document.querySelector("[name='data']");
+            const horarioInicioInput = document.querySelector("[name='horario_inicio']");
+            const horarioFimInput = document.querySelector("[name='horario_fim']");
+            const currentDate = new Date();
+            const selectedDate = new Date(dataInput.value);
+            const selectedHorarioInicio = horarioInicioInput.value;
+            const selectedHorarioFim = horarioFimInput.value;
+
+            if (selectedDate < currentDate && "{{ request.user.role }}" !== "secretary") {
+                alert("Você não pode criar bancas antes do dia atual.");
+                return;
+            }
+
+            if (selectedDate.toDateString() === currentDate.toDateString() && selectedHorarioInicio < currentDate.toTimeString().slice(0, 5) && "{{ request.user.role }}" !== "secretary") {
+                alert("Você não pode criar bancas em horário anterior ao atual.");
+                return;
+            }
+
+            if (selectedHorarioInicio >= selectedHorarioFim) {
+                alert("O horário de início não pode ser superior ao horário de fim.");
+                return;
+            }
+    
+            if (selectedProfessores.length < 3) {
+                alert("Você deve selecionar pelo menos 3 professores.");
+                return;
+            }
+
+            if (!selectedBlock) {
+                alert("Você deve selecionar um bloco.");
+                return;
+            }
+    
+            const formData = {
+                orientador: selectedOrientador,
+                co_orientador: selectedCoOrientador,
+                professores_banca: selectedProfessores,
+                sala: selectedSala,
+                bloco: selectedBlock,  // Certifique-se de que o campo 'bloco' está incluído
+                alunos_nomes: selectedAlunos.join(", "),
+                tema: document.querySelector("[name='tema']").value,
+                tipo: selectedTipo,
+                data: document.querySelector("[name='data']").value,
+                horario_inicio: document.querySelector("[name='horario_inicio']").value,
+                horario_fim: document.querySelector("[name='horario_fim']").value,
+                status: document.querySelector("[name='status']").value,
+                coordination: selectedCoordination
+            };
+    
+            console.log("Enviando JSON:", formData);
+    
+            fetch("{% url 'administrative:create_banca' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Banca criada com sucesso!");
+                    window.location.href = "{% url 'administrative:create_banca' %}";
+                } else {
+                    console.error("Erro ao criar banca:", data.errors);
+                    alert("Erro ao criar banca. Verifique os dados e tente novamente.");
+                }
+            })
+            .catch(error => {
+                console.error("Erro ao enviar requisição:", error);
+                alert("Erro ao enviar requisição. Tente novamente mais tarde.");
+            });
+        });
+    
         const statusField = document.querySelector("select[name='status']");
         if (statusField) {
             statusField.value = "analise";
