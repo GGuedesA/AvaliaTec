@@ -1,21 +1,13 @@
 <!-- filepath: /c:/Users/Gabriel/Desktop/AvaliaTec/administrative/templates/administrative/banca_list.html -->
 {% extends "base.html" %}
+{% load static %}
 {% load custom_filters %}
 
 {% block content %}
 <main>
     <section class="list-section">
         <div class="container">
-            <h2>Lista de Bancas</h2>
-
-            <!-- Legenda de cores -->
-            <div class="legend">
-                <div class="legend-card status-analise">Em Análise</div>
-                <div class="legend-card status-aceita">Aceita</div>
-                <div class="legend-card status-andamento">Em Andamento</div>
-                <div class="legend-card status-finalizada">Finalizada</div>
-            </div>
-
+            <h2>Histórico de Bancas Finalizadas</h2>
             <div class="courses-container">
                 {% if bancas %}
                     {% for banca in bancas %}
@@ -98,35 +90,14 @@
                     </div>
                     {% endfor %}
                 {% else %}
-                    <p>Nenhuma banca encontrada.</p>
+                    <p>Nenhuma banca finalizada encontrada.</p>
                 {% endif %}
             </div>
-            <!-- Paginação -->
-            {% if is_paginated %}
-            <div class="pagination">
-                <span class="step-links">
-                    {% if page_obj.has_previous %}
-                        <a href="?page=1">&laquo; primeira</a>
-                        <a href="?page={{ page_obj.previous_page_number }}">anterior</a>
-                    {% endif %}
-
-                    <span class="current">
-                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
-                    </span>
-
-                    {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}">próxima</a>
-                        <a href="?page={{ page_obj.paginator.num_pages }}">última &raquo;</a>
-                    {% endif %}
-                </span>
-            </div>
-            {% endif %}
         </div>
     </section>
 </main>
-
 <script>
-console.log("User role: {{ user_role }}");
+    console.log("User role: {{ user_role }}");
 
 function confirmBanca(bancaId) {
     fetch(`/administrative/confirm_banca/${bancaId}/`, {

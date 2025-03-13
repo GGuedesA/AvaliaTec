@@ -142,6 +142,14 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "accounts.Usuario"
 
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+LOGIN_URL = "accounts:login"
+LOGIN_REDIRECT_URL = "core:service"
+LOGOUT_REDIRECT_URL = "accounts:login"
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.SessionAuthentication",
@@ -164,7 +172,3 @@ SIMPLE_JWT = {
     "TOKEN_REFRESH_SERIALIZER": "accounts.serializers.CustomTokenRefreshSerializer",
     "TOKEN_BLACKLIST_SERIALIZER": "accounts.serializers.CustomTokenBlacklistSerializer",
 }
-
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-]

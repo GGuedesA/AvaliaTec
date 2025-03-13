@@ -4,7 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, logout, login
 from rest_framework import status
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
@@ -35,22 +35,9 @@ def login_view(request):
             user = authenticate(request, username=cpf, password=password)
 
             if user:
-                # Gerar tokens JWT
-                refresh = RefreshToken.for_user(user)
-                access_token = str(refresh.access_token)
-                refresh_token = str(refresh)
-
-                # Salvar tokens na sessão para uso posterior
-                request.session["access_token"] = access_token
-                request.session["refresh_token"] = refresh_token
-
-                # Salvar tipo de usuário na sessão
-                request.session["user_role"] = user.role
-
+                login(request, user)
                 messages.success(request, "Login realizado com sucesso!")
-                return redirect(
-                    "core:service"
-                )  # Redireciona para a lista de bancas
+                return redirect("core:service")
             else:
                 form.add_error(None, "CPF ou senha inválidos")
 
@@ -70,6 +57,9 @@ def logout_view(request):
             token.blacklist()
         except Exception as e:
             print(f"Erro ao invalidar o token: {e}")
+
+    # Fazer logout do usuário
+    logout(request)
 
     messages.success(request, "Logout realizado com sucesso!")
     return redirect("accounts:login")  # Redireciona para login após logout

@@ -8,9 +8,6 @@ class TokenAuthMiddleware:
 
     def __call__(self, request):
         allowed_paths = [reverse("accounts:login"), reverse("accounts:register")]
-        if (
-            not request.session.get("access_token")
-            and request.path not in allowed_paths
-        ):
+        if not request.user.is_authenticated and request.path not in allowed_paths:
             return redirect("accounts:login")
         return self.get_response(request)

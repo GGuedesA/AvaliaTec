@@ -18,9 +18,9 @@
             <p class="cs-item-text">Listagem de Bancas</p>
           </div>
           <picture class="cs-picture">
-            <source media="(max-width: 600px)" srcset="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/leaf.jpg">
-            <source media="(min-width: 601px)" srcset="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/leaf.jpg">
-            <img class="cs-icon" aria-hidden="true" loading="lazy" decoding="async" src="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/user.svg" alt="icon" width="70" height="70">
+            <source media="(max-width: 600px)" srcset="{% static "img/listar.jpg" %}">
+            <source media="(min-width: 601px)" srcset="{% static "img/listar.jpg" %}">
+            <img class="cs-icon" aria-hidden="true" loading="lazy" decoding="async" src="{% static "img/listar.jpg" %}" alt="icon" width="70" height="70">
           </picture>
         </li>
         <li class="cs-item" id="bancaCard" data-url="{% url 'administrative:create_banca' %}">
@@ -32,9 +32,9 @@
             <p class="cs-item-text">Agendamento de Bancas</p>
           </div>
           <picture class="cs-picture">
-            <source media="(max-width: 600px)" srcset="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/grass.jpg">
-            <source media="(min-width: 601px)" srcset="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/grass.jpg">
-            <img class="cs-icon" aria-hidden="true" loading="lazy" decoding="async" src="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/user.svg" alt="icon" width="70" height="70">
+            <source media="(max-width: 600px)" srcset="{% static "img/agendar.jpg" %}">
+            <source media="(min-width: 601px)" srcset="{% static "img/agendar.jpg" %}">
+            <img class="cs-icon" aria-hidden="true" loading="lazy" decoding="async" src="{% static "img/agendar.jpg" %}" alt="icon" width="70" height="70">
           </picture>
         </li>
       </ul>

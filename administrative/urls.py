@@ -28,6 +28,7 @@ from .views import (
     AgendamentoSalaListView,
     get_professores,
     confirm_agendamento,
+    historico,
 )
 
 app_name = "administrative"
@@ -78,4 +79,5 @@ urlpatterns = [
         confirm_agendamento,
         name="confirm_agendamento",
     ),
+    path("historico/", historico, name="historico"),
 ]

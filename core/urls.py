@@ -1,6 +1,7 @@
 from django.urls import path
+from django.views.generic import TemplateView
 
-from .views import home, about, service
+from .views import home, about
 
 app_name = "core"
 urlpatterns = [
@@ -10,5 +11,9 @@ urlpatterns = [
         about,
         name="about",
     ),
-    path("service/", service, name="service"),
+    path(
+        "service/",
+        TemplateView.as_view(template_name="core/service.html"),
+        name="service",
+    ),
 ]

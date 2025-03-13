@@ -21,6 +21,8 @@ from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
+from django.db.models import Q
+from rest_framework.decorators import api_view, permission_classes
 
 
 def banca(request):
@@ -312,17 +314,34 @@ class BancaListView(ListView):
     paginate_by = 10  # Opcional: para adicionar paginação
 
     def get_queryset(self):
-        bancas = (
-            super().get_queryset().order_by("data")
-        )  # Add ordering by date or any other field
+        user = self.request.user
+        user_role = user.role  # Obtém o tipo de usuário
+
+        if user_role == "secretary":
+            # Secretários veem bancas relacionadas à sua coordenação
+            bancas = Banca.objects.filter(coordination=user.coordination)
+        else:
+            # Professores veem bancas onde estão envolvidos
+            bancas = Banca.objects.filter(
+                Q(professores_banca=user) | Q(orientador=user) | Q(co_orientador=user)
+            )
+
+        bancas = bancas.order_by("data")  # Ordena por data
         for banca in bancas:
             banca.update_status()
         return bancas
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["user_role"] = (
+            self.request.user.role
+        )  # Adiciona o tipo de usuário ao contexto
+        return context
+
 
 class SalaListView(ListView):
     model = AgendamentoSala
-    template_name = "administrative/salas_list.html"
+    template_name = "administrative/agendamento_list.html"
     context_object_name = "agendamentos"
     paginate_by = 10
 
@@ -614,13 +633,13 @@ def generate_pdf(request, banca_id, user_id):
     # Corpo do texto
     p.setFont("Helvetica", 12)
     text = f"""
-    Processo nº 23107.006644/2024-02
+    Processo nº 23107.006644/2025-02
     Interessado: {user.get_full_name()}
 
     Declaramos, para os devidos fins e efeitos legais, que o(a) {user.get_full_name()}, na condição
     de {user.role}, participou da banca de apresentação do Trabalho de Conclusão de Curso
     intitulado "{banca.tema if banca.tema else "Tema não informado"}"
-    do discente {banca.alunos_nomes if banca.alunos_nomes else "Aluno não informado"}, apresentado em 19 de novembro de 2024.
+    do discente {banca.alunos_nomes if banca.alunos_nomes else "Aluno não informado"}, apresentado em 10 de março de 2025.
     """
     # Inserindo o texto no PDF, linha por linha
     for linha in text.strip().split("\n"):
@@ -641,7 +660,7 @@ def generate_pdf(request, banca_id, user_id):
             y -= 20
 
     # Data à direita
-    data = "Rio Branco/AC, 13 de março de 2024"
+    data = "Rio Branco/AC, 12 de março de 2025"
     p.drawRightString(width - margin_x, y, data)
     y -= 220  # Espaço após a data
 
@@ -659,3 +678,47 @@ def generate_pdf(request, banca_id, user_id):
     p.save()
 
     return response
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def historico(request):
+    user = request.user
+    user_role = user.role  # Obtém o tipo de usuário
+
+    if user_role == "secretary":
+        # Secretários veem bancas relacionadas à sua coordenação
+        bancas = Banca.objects.filter(
+            status="finalizada", coordination=user.fk_coordination
+        )
+    else:
+        # Outros usuários veem bancas onde estão envolvidos
+        bancas = Banca.objects.filter(status="finalizada").filter(
+            Q(professores_banca=user) | Q(orientador=user) | Q(co_orientador=user)
+        )
+
+    bancas = bancas.select_related(
+        "sala__block", "orientador", "co_orientador"
+    ).prefetch_related("professores_banca")
+
+    bancas_data = [
+        {
+            "id": banca.id,
+            "tema": banca.tema,
+            "data": banca.data,
+            "alunos_nomes": banca.alunos_nomes,
+            "sala": banca.sala,
+            "horario_inicio": banca.horario_inicio,
+            "horario_fim": banca.horario_fim,
+            "status": banca.status,
+            "orientador": banca.orientador,
+            "co_orientador": banca.co_orientador,
+            "professores_banca": banca.professores_banca.all(),
+        }
+        for banca in bancas
+    ]
+    return render(
+        request,
+        "administrative/historico.html",
+        {"bancas": bancas_data, "user_role": user_role},
+    )

@@ -28,12 +28,10 @@
                     <h3 class="cs-h3">Banca</h3><p class="cs-item-text">Agendamento e Listagem de Bancas</p>
                 </div>
                 <picture class="cs-picture">
-                    <source media="(max-width: 600px)" srcset="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/leaf.jpg">
-                    <source media="(min-width: 601px)" srcset="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/leaf.jpg">
-                    <img aria-hidden="true" loading="lazy" decoding="async" src="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/leaf.jpg" alt="leaf" width="345" height="428">
+                    <img aria-hidden="true" loading="lazy" decoding="async" src="{% static "img/bancas.jpg" %}" alt="leaf" width="345" height="428">
                 </picture>
             </li>
-            <li class="cs-item">
+            <li class="cs-item" id="salaCard" >
                 <div class="cs-flex">
                     <picture class="cs-wrapper">
                         <img class="cs-icon" aria-hidden="true" loading="lazy" decoding="async" src="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/user.svg" alt="icon" width="70" height="70">
@@ -41,12 +39,10 @@
                     <h3 class="cs-h3">Sala</h3><p class="cs-item-text">Agendamento e Listagem de Salas</p>
                 </div>
                 <picture class="cs-picture">
-                    <source media="(max-width: 600px)" srcset="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/grass.jpg">
-                    <source media="(min-width: 601px)" srcset="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/grass.jpg">
-                    <img aria-hidden="true" loading="lazy" decoding="async" src="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/grass.jpg" alt="grass" width="345" height="428">
+                    <img aria-hidden="true" loading="lazy" decoding="async" src="{% static "img/salas.jpg" %}" alt="grass" width="345" height="428">
                 </picture>
             </li>
-            <li class="cs-item">
+            <li class="cs-item" id="historicoCard" data-url="{% url 'administrative:historico' %}">
                 <div class="cs-flex">
                     <picture class="cs-wrapper">
                         <img class="cs-icon" aria-hidden="true" loading="lazy" decoding="async" src="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/user.svg" alt="icon" width="70" height="70">

@@ -7,11 +7,20 @@
         <div class="container">
             <h2>Lista de Agendamentos de Salas</h2>
 
+            <!-- Legenda de cores -->
+            <div class="legend">
+                <div class="legend-card status-analise">Em Análise</div>
+                <div class="legend-card status-aceita">Confirmado</div>
+                <div class="legend-card status-andamento">Em Andamento</div>
+                <div class="legend-card status-finalizada">Finalizado</div>
+            </div>
+            
             <div class="courses-container">
                 {% for agendamento in agendamentos %}
                 <div class="course">
                     <div class="course-preview status-{{ agendamento.status|lower }}">
                         <h1 class="course-title">{{ agendamento.materia }}</h1>
+                        <a href="#">{{ agendamento.get_tipo_display }} <i class="fas fa-chevron-right"></i></a>
                     </div>
                     <div class="course-info">
                         <h6>{{ agendamento.data }}</h6>
@@ -42,6 +51,7 @@
                                 <p><strong>Data:</strong> {{ agendamento.data }}</p>
                                 <p><strong>Horário de Início:</strong> {{ agendamento.horario_inicio }}</p>
                                 <p><strong>Horário de Fim:</strong> {{ agendamento.horario_fim }}</p>
+                                <p><strong>Status:</strong> {{ agendamento.status }}</p>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
@@ -56,6 +66,7 @@
 </main>
 
 <script>
+console.log("User role: {{ request.session.user_role }}");
 function confirmAgendamento(agendamentoId) {
     fetch(`/administrative/confirm_agendamento/${agendamentoId}/`, {
         method: 'POST',

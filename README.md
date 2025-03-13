@@ -19,11 +19,11 @@ Crie um ambiente virtual para garantir que as dependências da sua aplicação s
 
 ```bash
 # Crie o ambiente virtual
-python3 -m venv env
+python3 -m venv .venv
 
 # Ative o ambiente virtual
 # No Windows:
-env\Scripts\activate
+.venv\Scripts\activate
 
 # No macOS/Linux:
 source env/bin/activate

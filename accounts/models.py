@@ -1,7 +1,30 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    PermissionsMixin,
+    BaseUserManager,
+)
 from django.utils import timezone
-from .managers import UserManager
+
+
+class UserManager(BaseUserManager):
+    def create_user(self, cpf, email, password=None, **extra_fields):
+        if not cpf:
+            raise ValueError("O CPF deve ser fornecido")
+        if not email:
+            raise ValueError("O email deve ser fornecido")
+
+        email = self.normalize_email(email)
+        user = self.model(cpf=cpf, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, cpf, email, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+
+        return self.create_user(cpf, email, password, **extra_fields)
 
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
