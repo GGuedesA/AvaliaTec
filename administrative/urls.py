@@ -29,11 +29,13 @@ from .views import (
     get_professores,
     confirm_agendamento,
     historico,
+    sala,
 )
 
 app_name = "administrative"
 urlpatterns = [
     path("banca/", banca, name="banca"),
+    path("sala/", sala, name="sala"),
     path("bancas/", BancaList.as_view(), name="banca_list"),
     path("bancas/<int:pk>/", BancaDetail.as_view(), name="banca_detail"),
     path("bancas/<int:pk>/edit/", edit_banca, name="edit_banca"),

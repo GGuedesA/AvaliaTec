@@ -29,6 +29,10 @@ def banca(request):
     return render(request, "administrative/banca.html")
 
 
+def sala(request):
+    return render(request, "administrative/sala.html")
+
+
 def create_block(request):
     if request.method == "POST":
         form = BlockForm(request.POST)
@@ -171,21 +175,36 @@ def create_banca(request):
         )
 
 
+@csrf_exempt
 def create_agendamento(request):
     if request.method == "POST":
-        form = AgendamentoSalaForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("administrative:agendamento_list")
+        try:
+            data = json.loads(request.body)
+            serializer = AgendamentoSalaSerializer(data=data)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse({"success": True, "data": serializer.data})
+            return JsonResponse({"success": False, "errors": serializer.errors})
+        except json.JSONDecodeError:
+            return JsonResponse({"success": False, "errors": "Invalid JSON"})
     else:
         form = AgendamentoSalaForm()
-    professores = Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER)
-    salas = Room.objects.all()
-    return render(
-        request,
-        "administrative/agendamento_form.html",
-        {"form": form, "professores": professores, "salas": salas},
-    )
+        professores = Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER)
+        salas = Room.objects.all()
+        blocks = Block.objects.all()
+        coordinations = Coordination.objects.all()
+
+        return render(
+            request,
+            "administrative/agendamento_form.html",
+            {
+                "form": form,
+                "professores": professores,
+                "salas": salas,
+                "blocks": blocks,
+                "coordinations": coordinations,
+            },
+        )
 
 
 def get_salas(request):
@@ -319,7 +338,7 @@ class BancaListView(ListView):
 
         if user_role == "secretary":
             # Secretários veem bancas relacionadas à sua coordenação
-            bancas = Banca.objects.filter(coordination=user.coordination)
+            bancas = Banca.objects.filter(coordination=user.fk_coordination)
         else:
             # Professores veem bancas onde estão envolvidos
             bancas = Banca.objects.filter(
@@ -630,6 +649,18 @@ def generate_pdf(request, banca_id, user_id):
     p.drawCentredString(width / 2, y, "DECLARAÇÃO")
     y -= 40
 
+    # Determinar o papel do usuário na banca
+    papel = "membro"
+    if user == banca.orientador:
+        papel = "orientador"
+    elif user == banca.co_orientador:
+        papel = "co-orientador"
+    elif user in banca.professores_banca.all():
+        papel = "membro da banca"
+
+    # Formatar a data da banca
+    data_banca = banca.data.strftime("%d de %B de %Y")
+
     # Corpo do texto
     p.setFont("Helvetica", 12)
     text = f"""
@@ -637,9 +668,9 @@ def generate_pdf(request, banca_id, user_id):
     Interessado: {user.get_full_name()}
 
     Declaramos, para os devidos fins e efeitos legais, que o(a) {user.get_full_name()}, na condição
-    de {user.role}, participou da banca de apresentação do Trabalho de Conclusão de Curso
+    de {papel}, participou da banca de apresentação do Trabalho de Conclusão de Curso
     intitulado "{banca.tema if banca.tema else "Tema não informado"}"
-    do discente {banca.alunos_nomes if banca.alunos_nomes else "Aluno não informado"}, apresentado em 10 de março de 2025.
+    do discente {banca.alunos_nomes if banca.alunos_nomes else "Aluno não informado"}, apresentado em {data_banca}.
     """
     # Inserindo o texto no PDF, linha por linha
     for linha in text.strip().split("\n"):
@@ -660,7 +691,7 @@ def generate_pdf(request, banca_id, user_id):
             y -= 20
 
     # Data à direita
-    data = "Rio Branco/AC, 12 de março de 2025"
+    data = "Rio Branco/AC, 13 de março de 2025"
     p.drawRightString(width - margin_x, y, data)
     y -= 220  # Espaço após a data
 
@@ -701,24 +732,19 @@ def historico(request):
         "sala__block", "orientador", "co_orientador"
     ).prefetch_related("professores_banca")
 
-    bancas_data = [
-        {
-            "id": banca.id,
-            "tema": banca.tema,
-            "data": banca.data,
-            "alunos_nomes": banca.alunos_nomes,
-            "sala": banca.sala,
-            "horario_inicio": banca.horario_inicio,
-            "horario_fim": banca.horario_fim,
-            "status": banca.status,
-            "orientador": banca.orientador,
-            "co_orientador": banca.co_orientador,
-            "professores_banca": banca.professores_banca.all(),
-        }
-        for banca in bancas
-    ]
+    # Agrupar bancas por ano
+    bancas_por_ano = {}
+    for banca in bancas:
+        ano = banca.data.year
+        if ano not in bancas_por_ano:
+            bancas_por_ano[ano] = []
+        bancas_por_ano[ano].append(banca)
+
+    # Ordenar os anos em ordem crescente
+    anos = sorted(bancas_por_ano.keys())
+
     return render(
         request,
         "administrative/historico.html",
-        {"bancas": bancas_data, "user_role": user_role},
+        {"bancas_por_ano": bancas_por_ano, "anos": anos, "user_role": user_role},
     )

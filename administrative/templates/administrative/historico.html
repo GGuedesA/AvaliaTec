@@ -8,8 +8,14 @@
     <section class="list-section">
         <div class="container">
             <h2>Histórico de Bancas Finalizadas</h2>
+            <div class="years-container">
+                {% for ano in anos %}
+                <button class="button-3" onclick="showBancas({{ ano }}, this)">{{ ano }}</button>
+                {% endfor %}
+            </div>
             <div class="courses-container">
-                {% if bancas %}
+                {% for ano, bancas in bancas_por_ano.items %}
+                <div class="bancas-ano" id="bancas-{{ ano }}" style="display: none;">
                     {% for banca in bancas %}
                     <div class="course">
                         <div class="course-preview status-{{ banca.status|lower }}">
@@ -89,9 +95,8 @@
                         </div>
                     </div>
                     {% endfor %}
-                {% else %}
-                    <p>Nenhuma banca finalizada encontrada.</p>
-                {% endif %}
+                </div>
+                {% endfor %}
             </div>
         </div>
     </section>
@@ -99,26 +104,43 @@
 <script>
     console.log("User role: {{ user_role }}");
 
-function confirmBanca(bancaId) {
-    fetch(`/administrative/confirm_banca/${bancaId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            console.error('Erro ao confirmar banca:', data.error);
-            alert('Erro ao confirmar banca: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Erro ao enviar requisição:', error);
-        alert('Erro ao enviar requisição. Tente novamente mais tarde.');
-    });
-}
+    function showBancas(ano, button) {
+        // Esconder todas as divs de bancas
+        document.querySelectorAll('.bancas-ano').forEach(function(div) {
+            div.style.display = 'none';
+        });
+        // Mostrar a div de bancas do ano selecionado
+        document.getElementById('bancas-' + ano).style.display = 'block';
+
+        // Alterar a classe dos botões
+        document.querySelectorAll('.years-container button').forEach(function(btn) {
+            btn.classList.remove('button-2');
+            btn.classList.add('button-3');
+        });
+        button.classList.remove('button-3');
+        button.classList.add('button-2');
+    }
+
+    function confirmBanca(bancaId) {
+        fetch(`/administrative/confirm_banca/${bancaId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                console.error('Erro ao confirmar banca:', data.error);
+                alert('Erro ao confirmar banca: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao enviar requisição:', error);
+            alert('Erro ao enviar requisição. Tente novamente mais tarde.');
+        });
+    }
 </script>
 {% endblock content %}

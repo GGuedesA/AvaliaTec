@@ -73,7 +73,11 @@
                 </div>
                 <div class="form-item" style="display: none;">
                     <label for="status">Status</label>
-                    {{ form.status }}
+                    <select name="status" class="form-control">
+                        {% for choice in form.fields.status.choices %}
+                            <option value="{{ choice.0 }}" {% if form.initial.status == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 <div class="form-item">
                     <label for="coordination">Coordenação</label>

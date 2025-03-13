@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+  <!-- ============================================ -->
+  <!--                  Services                    -->
+  <!-- ============================================ -->
+
+  <section id="services-448">
+    <div class="cs-container">
+      <ul class="cs-card-group">
+        <li class="cs-item" id="bancaCard" data-url="{% url 'administrative:listar_salas' %}">
+          <div class="cs-flex">
+            <picture class="cs-wrapper">
+              <img class="cs-icon" aria-hidden="true" loading="lazy" decoding="async" src="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/user.svg" alt="icon" width="70" height="70">
+            </picture>
+            <h3 class="cs-h3">Listar Bancas</h3>
+            <p class="cs-item-text">Listagem de Bancas</p>
+          </div>
+          <picture class="cs-picture">
+            <source media="(max-width: 600px)" srcset="{% static "img/listar.jpg" %}">
+            <source media="(min-width: 601px)" srcset="{% static "img/listar.jpg" %}">
+            <img class="cs-icon" aria-hidden="true" loading="lazy" decoding="async" src="{% static "img/listar.jpg" %}" alt="icon" width="70" height="70">
+          </picture>
+        </li>
+        <li class="cs-item" id="bancaCard" data-url="{% url 'administrative:create_agendamento' %}">
+          <div class="cs-flex">
+            <picture class="cs-wrapper">
+              <img class="cs-icon" aria-hidden="true" loading="lazy" decoding="async" src="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/user.svg" alt="icon" width="70" height="70">
+            </picture>
+            <h3 class="cs-h3">Agendar Bancas</h3>
+            <p class="cs-item-text">Agendamento de Bancas</p>
+          </div>
+          <picture class="cs-picture">
+            <source media="(max-width: 600px)" srcset="{% static "img/agendar.jpg" %}">
+            <source media="(min-width: 601px)" srcset="{% static "img/agendar.jpg" %}">
+            <img class="cs-icon" aria-hidden="true" loading="lazy" decoding="async" src="{% static "img/agendar.jpg" %}" alt="icon" width="70" height="70">
+          </picture>
+        </li>
+      </ul>
+    </div>
+  </section>
+{% endblock content %}

@@ -40,3 +40,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+  const salaCard = document.getElementById('salaCard');
+
+  if (salaCard) {
+      salaCard.addEventListener('click', function() {
+          const url = salaCard.getAttribute('data-url');
+          window.location.href = url;
+      });
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  const historicoCard = document.getElementById('historicoCard');
+
+  if (historicoCard) {
+      historicoCard.addEventListener('click', function() {
+          const url = historicoCard.getAttribute('data-url');
+          window.location.href = url;
+      });
+  }
+});

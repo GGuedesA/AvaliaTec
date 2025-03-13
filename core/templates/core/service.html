@@ -31,7 +31,7 @@
                     <img aria-hidden="true" loading="lazy" decoding="async" src="{% static "img/bancas.jpg" %}" alt="leaf" width="345" height="428">
                 </picture>
             </li>
-            <li class="cs-item" id="salaCard" >
+            <li class="cs-item" id="salaCard" data-url="{% url 'administrative:sala' %}">
                 <div class="cs-flex">
                     <picture class="cs-wrapper">
                         <img class="cs-icon" aria-hidden="true" loading="lazy" decoding="async" src="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/user.svg" alt="icon" width="70" height="70">
@@ -50,9 +50,7 @@
                     <h3 class="cs-h3">Histórico</h3><p class="cs-item-text">Histórico de Bancas</p>
                 </div>
                 <picture class="cs-picture">
-                    <source media="(max-width: 600px)" srcset="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/leaves.jpg">
-                    <source media="(min-width: 601px)" srcset="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/leaves.jpg">
-                    <img aria-hidden="true" loading="lazy" decoding="async" src="https://csimg.nyc3.cdn.digitaloceanspaces.com/Services/leaves.jpg" alt="leaves" width="345" height="428">
+                    <img aria-hidden="true" loading="lazy" decoding="async" src="{% static "img/bancas.jpg" %}" alt="leaves" width="345" height="428">
                 </picture>
             </li>
             {% comment %} <li class="cs-item">

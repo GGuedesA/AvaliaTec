@@ -101,6 +101,12 @@ class AgendamentoSalaSerializer(serializers.ModelSerializer):
     sala = serializers.PrimaryKeyRelatedField(
         queryset=Room.objects.all(), required=True
     )
+    bloco = serializers.PrimaryKeyRelatedField(
+        queryset=Block.objects.all(), required=True
+    )
+    coordenacao = serializers.PrimaryKeyRelatedField(
+        queryset=Coordination.objects.all(), required=True
+    )
     materia = serializers.CharField(required=True)
     data = serializers.DateField(required=True)
     horario_inicio = serializers.TimeField(required=True)
@@ -115,6 +121,8 @@ class AgendamentoSalaSerializer(serializers.ModelSerializer):
             "id",
             "professor",
             "sala",
+            "bloco",
+            "coordenacao",
             "materia",
             "data",
             "horario_inicio",

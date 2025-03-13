@@ -25,6 +25,7 @@
                     <div class="course-info">
                         <h6>{{ agendamento.data }}</h6>
                         <h2>{{ agendamento.professor.name }}</h2>
+                        <p><strong>Bloco:</strong> {{ agendamento.sala.block.name }}</p>
                         <p><strong>Sala:</strong> {{ agendamento.sala.name }}</p>
                         <p><strong>Horário:</strong> {{ agendamento.horario_inicio }} - {{ agendamento.horario_fim }}</p>
                         <button class="btn" data-toggle="modal" data-target="#agendamentoModal{{ agendamento.id }}">Ver Mais</button>

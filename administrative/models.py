@@ -110,6 +110,15 @@ class AgendamentoSala(models.Model):
     sala = models.ForeignKey(
         Room, on_delete=models.CASCADE, related_name="agendamentos"
     )
+    
+    bloco = models.ForeignKey(
+        Block, on_delete=models.CASCADE, related_name="agendamentos", default=1
+    )
+    
+    coordenacao = models.ForeignKey(
+        Coordination, on_delete=models.CASCADE, related_name="agendamentos", default=1
+    )
+    
     materia = models.CharField(max_length=100)
     data = models.DateField()
     horario_inicio = models.TimeField()
