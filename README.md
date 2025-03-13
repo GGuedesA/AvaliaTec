@@ -91,3 +91,10 @@ Se precisar acessar o painel administrativo do Django, crie um superusuário com
 ```bash
 python manage.py createsuperuser
 ```
+
+
+popular
+
+```bash
+python manage.py populate_data
+```
