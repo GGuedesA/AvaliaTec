@@ -62,3 +62,20 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   }
 });
+
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const accessToken = localStorage.getItem('access_token');
+
+            if (accessToken) {
+                axios.defaults.headers.common['Authorization'] = 'Bearer ' + accessToken;
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user_role');
+            document.getElementById('logout-form').submit();
+        }
