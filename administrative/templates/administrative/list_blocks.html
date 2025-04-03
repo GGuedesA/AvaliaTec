@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+    <section class="list-section">
+        <div class="container">
+            <h2>Lista de Blocos</h2>
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for block in blocks %}
+                    <tr>
+                        <td>{{ block.id }}</td>
+                        <td>{{ block.name }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="no-data">Nenhum bloco encontrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="buttons">
+                <a href="{% url 'administrative:create_block' %}" class="button-1">Cadastrar Blocos</a>
+                <a href="{% url 'administrative:admin_dashboard' %}" class="button-1">Voltar</a>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock content %}

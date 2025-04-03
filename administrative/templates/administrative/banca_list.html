@@ -8,21 +8,22 @@
         <div class="container">
             <h2>Lista de Bancas</h2>
 
-            <!-- Legenda de cores -->
+           <!-- Legenda de cores com eventos de clique -->
             <div class="legend">
-                <div class="legend-card status-analise">Em Análise</div>
-                <div class="legend-card status-aceita">Aceita</div>
-                <div class="legend-card status-andamento">Em Andamento</div>
-                <div class="legend-card status-finalizada">Finalizada</div>
+                <button class="legend-card status-analise" onclick="filterBancas('analise')">Em Análise</button>
+                <button class="legend-card status-aceita" onclick="filterBancas('aceita')">Aceita</button>
+                <button class="legend-card status-andamento" onclick="filterBancas('andamento')">Em Andamento</button>
+                <button class="legend-card status-finalizada" onclick="filterBancas('finalizada')">Finalizada</button>
             </div>
+
 
             <div class="courses-container">
                 {% if bancas %}
                     {% for banca in bancas %}
-                    <div class="course">
+                    <div class="course banca-item" data-status="{{ banca.status|lower }}">
                         <div class="course-preview status-{{ banca.status|lower }}">
                             <h1 class="course-title">{{ banca.tema }}</h1>
-                            <a href="#">{{ banca.get_tipo_display }} <i class="fas fa-chevron-right"></i></a>
+                            <a>{{ banca.get_tipo_display }} <i class="fas fa-chevron-right"></i></a>
                         </div>
                         <div class="course-info">
                             <h6>{{ banca.data }}</h6>
@@ -32,7 +33,10 @@
                             <p><strong>Horário:</strong> {{ banca.horario_inicio }} - {{ banca.horario_fim }}</p>
                             <button class="btn" data-toggle="modal" data-target="#bancaModal{{ banca.id }}">Ver Mais</button>
                             {% if user_role == 'secretary' %}
-                            <button class="button-1" onclick="confirmBanca({{ banca.id }})">Confirmar</button>
+                                {% if banca.status == 'analise' %}
+                                    <button class="button-1" onclick="confirmBanca({{ banca.id }})">Confirmar</button>
+                                {% endif %}
+                            <button class="button-1" onclick="window.location.href='{% url 'administrative:edit_banca' banca.id %}'">Editar</button>
                             <button class="button-1" data-toggle="modal" data-target="#documentosModal{{ banca.id }}">Documentos</button>
                             {% endif %}
                         </div>
@@ -57,6 +61,9 @@
                                     <p><strong>Sala:</strong> {{ banca.sala.name }}</p>
                                     <p><strong>Horário:</strong> {{ banca.horario_inicio }} - {{ banca.horario_fim }}</p>
                                     <p><strong>Status:</strong> {{ banca.status }}</p>
+                                    {% if banca.presidente %}
+                                    <p><strong>Presidente:</strong> {{ banca.presidente.get_full_name }}</p>
+                                    {% endif %}
                                     <p><strong>Orientador:</strong> {{ banca.orientador.get_full_name }}</p>
                                     {% if banca.co_orientador %}
                                     <p><strong>Co-orientador:</strong> {{ banca.co_orientador.get_full_name }}</p>
@@ -68,7 +75,7 @@
                                     </p>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                    <button type="button" class="button-red" data-dismiss="modal">Fechar</button>
                                 </div>
                             </div>
                         </div>
@@ -85,12 +92,15 @@
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    <button class="button-1" onclick="window.location.href='{% url 'administrative:generate_pdf' banca.id banca.orientador.id %}'">{{ banca.orientador.get_full_name }}</button>
+                                    {% if banca.presidente %}
+                                    <button class="button-pdf" onclick="window.location.href='{% url 'administrative:generate_pdf' banca.id banca.presidente.id %}'">{{ banca.presidente.get_full_name }}</button>
+                                    {% endif %}
+                                    <button class="button-pdf" onclick="window.location.href='{% url 'administrative:generate_pdf' banca.id banca.orientador.id %}'">{{ banca.orientador.get_full_name }}</button>
                                     {% if banca.co_orientador %}
-                                    <button class="button-1" onclick="window.location.href='{% url 'administrative:generate_pdf' banca.id banca.co_orientador.id %}'">{{ banca.co_orientador.get_full_name }}</button>
+                                    <button class="button-pdf" onclick="window.location.href='{% url 'administrative:generate_pdf' banca.id banca.co_orientador.id %}'">{{ banca.co_orientador.get_full_name }}</button>
                                     {% endif %}
                                     {% for professor in banca.professores_banca.all %}
-                                    <button class="button-1" onclick="window.location.href='{% url 'administrative:generate_pdf' banca.id professor.id %}'">{{ professor.get_full_name }}</button>
+                                    <button class="button-pdf" onclick="window.location.href='{% url 'administrative:generate_pdf' banca.id professor.id %}'">{{ professor.get_full_name }}</button>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -148,6 +158,23 @@ function confirmBanca(bancaId) {
         console.error('Erro ao enviar requisição:', error);
         alert('Erro ao enviar requisição. Tente novamente mais tarde.');
     });
+}
+
+function filterBancas(status) {
+    const bancas = document.querySelectorAll(".banca-item");
+    bancas.forEach(banca => {
+        if (status === "all" || banca.getAttribute("data-status") === status) {
+            banca.style.visibility = "visible";
+            banca.style.position = "relative";
+        } else {
+            banca.style.visibility = "hidden";
+            banca.style.position = "absolute";
+        }
+    });
+
+    // Remover a classe 'active' de todos os botões e adicionar no selecionado
+    document.querySelectorAll(".legend-card").forEach(btn => btn.classList.remove("active"));
+    document.querySelector(`.legend-card.status-${status}`)?.classList.add("active");
 }
 </script>
 {% endblock content %}

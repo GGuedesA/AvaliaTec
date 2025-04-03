@@ -23,6 +23,14 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from django.db.models import Q
 from rest_framework.decorators import api_view, permission_classes
+from django.contrib.auth.decorators import login_required, user_passes_test
+import locale
+
+
+@login_required
+@user_passes_test(lambda user: user.role == Usuario.RoleChoices.ADMIN)
+def admin_dashboard(request):
+    return render(request, "administrative/admin_dashboard.html", {})
 
 
 def banca(request):
@@ -125,6 +133,11 @@ def create_banca(request):
                 banca = form.save(commit=False)
 
                 # Salvando os relacionamentos baseados nos IDs recebidos
+                banca.presidente = (
+                    Usuario.objects.get(id=data["presidente"])
+                    if data["presidente"]
+                    else None
+                )
                 banca.orientador = Usuario.objects.get(id=data["orientador"])
                 banca.co_orientador = (
                     Usuario.objects.get(id=data["co_orientador"])
@@ -157,6 +170,7 @@ def create_banca(request):
 
     else:
         form = BancaForm()
+        presidente = Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER)
         orientadores = Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER)
         co_orientadores = Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER)
         professores_banca = Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER)
@@ -167,6 +181,7 @@ def create_banca(request):
             "administrative/banca_form.html",
             {
                 "form": form,
+                "presidente": presidente,
                 "orientadores": orientadores,
                 "co_orientadores": co_orientadores,
                 "professores_banca": professores_banca,
@@ -247,13 +262,9 @@ def get_professores(request):
         professores = Usuario.objects.filter(
             name__icontains=q, role=Usuario.RoleChoices.TEACHER
         )
-        results = []
-        for professor in professores:
-            professor_json = {}
-            professor_json["id"] = professor.id
-            professor_json["label"] = professor.name
-            professor_json["value"] = professor.name
-            results.append(professor_json)
+        results = [
+            {"id": professor.id, "name": professor.name} for professor in professores
+        ]
         return JsonResponse(results, safe=False)
     return JsonResponse({"error": "Invalid request"}, status=400)
 
@@ -362,7 +373,30 @@ class SalaListView(ListView):
     model = AgendamentoSala
     template_name = "administrative/agendamento_list.html"
     context_object_name = "agendamentos"
-    paginate_by = 10
+    paginate_by = 10  # Opcional: para adicionar paginação
+
+    def get_queryset(self):
+        user = self.request.user
+        user_role = user.role  # Obtém o tipo de usuário
+
+        if user_role == "secretary":
+            # Secretários veem agendamentos relacionados à sua coordenação
+            agendamentos = AgendamentoSala.objects.filter(
+                sala__block__coordinations=user.fk_coordination
+            )
+        else:
+            # Professores veem agendamentos onde estão envolvidos
+            agendamentos = AgendamentoSala.objects.filter(professor=user)
+
+        agendamentos = agendamentos.order_by("data")  # Ordena por data
+        return agendamentos
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["user_role"] = (
+            self.request.user.role
+        )  # Adiciona o tipo de usuário ao contexto
+        return context
 
 
 # ==================== Views para Agendamento ====================
@@ -578,14 +612,44 @@ class RoomDetail(APIView):
 
 def edit_banca(request, pk):
     banca = get_object_or_404(Banca, pk=pk)
-    if request.method == "POST":
-        form = BancaForm(request.POST, instance=banca)
+
+    if request.method in ["POST", "PUT"]:
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {"success": False, "error": "JSON inválido"}, status=400
+            )
+
+        form = BancaForm(data, instance=banca)
         if form.is_valid():
             form.save()
-            return redirect("listar_bancas")
+            return JsonResponse(
+                {"success": True, "message": "Banca atualizada com sucesso!"}
+            )
+        else:
+            return JsonResponse({"success": False, "errors": form.errors}, status=400)
+
     else:
         form = BancaForm(instance=banca)
-    return render(request, "administrative/banca_form.html", {"form": form})
+        presidente = Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER)
+        orientadores = Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER)
+        co_orientadores = Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER)
+        professores_banca = Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER)
+        blocks = Block.objects.all()
+        return render(
+            request,
+            "administrative/banca_form.html",
+            {
+                "form": form,
+                "presidente": presidente,
+                "orientadores": orientadores,
+                "co_orientadores": co_orientadores,
+                "professores_banca": professores_banca,
+                "blocks": blocks,
+                "banca": banca,
+            },
+        )
 
 
 @csrf_exempt
@@ -617,6 +681,9 @@ def confirm_agendamento(request, agendamento_id):
 
 
 def generate_pdf(request, banca_id, user_id):
+    # Configurar o locale para português do Brasil
+    locale.setlocale(locale.LC_TIME, "pt_BR.UTF-8")
+
     banca = Banca.objects.get(id=banca_id)
     user = Usuario.objects.get(id=user_id)
 
@@ -658,7 +725,7 @@ def generate_pdf(request, banca_id, user_id):
     elif user in banca.professores_banca.all():
         papel = "membro da banca"
 
-    # Formatar a data da banca
+    # Formatar a data da banca em português
     data_banca = banca.data.strftime("%d de %B de %Y")
 
     # Corpo do texto
@@ -690,8 +757,9 @@ def generate_pdf(request, banca_id, user_id):
             p.drawString(margin_x, y, nome)
             y -= 20
 
-    # Data à direita
-    data = "Rio Branco/AC, 13 de março de 2025"
+    # Data atual em português
+    data_atual = datetime.now().strftime("%d de %B de %Y")
+    data = f"Rio Branco/AC, {data_atual}"
     p.drawRightString(width - margin_x, y, data)
     y -= 220  # Espaço após a data
 
@@ -748,3 +816,56 @@ def historico(request):
         "administrative/historico.html",
         {"bancas_por_ano": bancas_por_ano, "anos": anos, "user_role": user_role},
     )
+
+
+class EditBancaAPIView(APIView):
+    def put(self, request, pk):
+        banca = get_object_or_404(Banca, pk=pk)
+        data = request.data
+        try:
+            form = BancaForm(data, instance=banca)
+            if form.is_valid():
+                form.save()
+                banca.professores_banca.set(data.get("professores_banca", []))
+                return Response(
+                    {"success": True, "message": "Banca atualizada com sucesso!"}
+                )
+            else:
+                return Response(
+                    {"success": False, "errors": form.errors},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except Exception as e:
+            return Response(
+                {"success": False, "error": str(e)}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+@login_required
+@user_passes_test(lambda user: user.role == Usuario.RoleChoices.ADMIN)
+def list_blocks(request):
+    blocks = Block.objects.all()  # Fetch all blocks
+    return render(request, "administrative/list_blocks.html", {"blocks": blocks})
+
+
+@login_required
+@user_passes_test(lambda user: user.role == Usuario.RoleChoices.ADMIN)
+def list_coordinations(request):
+    coordinations = Coordination.objects.all()  # Fetch all coordinations
+    return render(
+        request,
+        "administrative/list_coordinations.html",
+        {"coordinations": coordinations},
+    )
+
+
+@login_required
+@user_passes_test(lambda user: user.role == Usuario.RoleChoices.ADMIN)
+def list_rooms(request):
+    rooms = Room.objects.all()  # Fetch all rooms
+    return render(request, "administrative/list_rooms.html", {"rooms": rooms})
+
+
+def room_list(request):
+    rooms = Room.objects.select_related("block").all()
+    return render(request, "administrative/list_rooms.html", {"rooms": rooms})

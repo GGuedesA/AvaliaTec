@@ -9,15 +9,15 @@
 
             <!-- Legenda de cores -->
             <div class="legend">
-                <div class="legend-card status-analise">Em Análise</div>
-                <div class="legend-card status-aceita">Confirmado</div>
-                <div class="legend-card status-andamento">Em Andamento</div>
-                <div class="legend-card status-finalizada">Finalizado</div>
+                <button class="legend-card status-analise" onclick="filterAgendamento('analise')">Em Análise</button>
+                <button class="legend-card status-aceita" onclick="filterAgendamento('confirmado')">Confirmada</button>
+                <button class="legend-card status-andamento" onclick="filterAgendamento('andamento')">Em Andamento</button>
+                <button class="legend-card status-finalizada" onclick="filterAgendamento('finalizada')">Finalizada</button>
             </div>
             
             <div class="courses-container">
                 {% for agendamento in agendamentos %}
-                <div class="course">
+                <div class="course agendamento-item" data-status="{{ agendamento.status|lower }}">
                     <div class="course-preview status-{{ agendamento.status|lower }}">
                         <h1 class="course-title">{{ agendamento.materia }}</h1>
                         <a href="#">{{ agendamento.get_tipo_display }} <i class="fas fa-chevron-right"></i></a>
@@ -29,7 +29,7 @@
                         <p><strong>Sala:</strong> {{ agendamento.sala.name }}</p>
                         <p><strong>Horário:</strong> {{ agendamento.horario_inicio }} - {{ agendamento.horario_fim }}</p>
                         <button class="btn" data-toggle="modal" data-target="#agendamentoModal{{ agendamento.id }}">Ver Mais</button>
-                        {% if request.session.user_role == 'secretary' %}
+                        {% if user_role == 'secretary' and agendamento.status|lower == "analise" %}
                         <button class="button-1" onclick="confirmAgendamento({{ agendamento.id }})">Confirmar</button>
                         {% endif %}
                     </div>
@@ -55,7 +55,7 @@
                                 <p><strong>Status:</strong> {{ agendamento.status }}</p>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                <button type="button" class="button-red" data-dismiss="modal">Fechar</button>
                             </div>
                         </div>
                     </div>
@@ -67,7 +67,7 @@
 </main>
 
 <script>
-console.log("User role: {{ request.session.user_role }}");
+console.log("User role: {{ user_role }}");
 function confirmAgendamento(agendamentoId) {
     fetch(`/administrative/confirm_agendamento/${agendamentoId}/`, {
         method: 'POST',
@@ -89,6 +89,23 @@ function confirmAgendamento(agendamentoId) {
         console.error('Erro ao enviar requisição:', error);
         alert('Erro ao enviar requisição. Tente novamente mais tarde.');
     });
+}
+
+function filterAgendamento(status) {
+    const agendamentos = document.querySelectorAll(".agendamento-item");
+    agendamentos.forEach(agendamento => {
+        if (status === "all" || agendamento.getAttribute("data-status") === status) {
+            agendamento.style.visibility = "visible";
+            agendamento.style.position = "relative";
+        } else {
+            agendamento.style.visibility = "hidden";
+            agendamento.style.position = "absolute";
+        }
+    });
+
+    // Remover a classe 'active' de todos os botões e adicionar no selecionado
+    document.querySelectorAll(".legend-card").forEach(btn => btn.classList.remove("active"));
+    document.querySelector(`.legend-card.status-${status}`)?.classList.add("active");
 }
 </script>
 {% endblock content %}

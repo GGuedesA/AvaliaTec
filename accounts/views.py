@@ -10,6 +10,7 @@ from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 from .forms import RegisterForm, LoginForm
 from .models import Usuario
@@ -209,3 +210,19 @@ class CustomTokenBlacklistView(TokenBlacklistView):
     def post(self, request, *args, **kwargs):
         super().post(request, *args, **kwargs)
         return Response(status=status.HTTP_205_RESET_CONTENT)
+
+
+@login_required
+@user_passes_test(lambda user: user.role == Usuario.RoleChoices.ADMIN)
+def manage_users(request):
+    users = Usuario.objects.all()  # Obtém todos os usuários cadastrados
+    return render(request, "accounts/register.html", {"users": users})
+
+
+
+
+@login_required
+@user_passes_test(lambda user: user.role == Usuario.RoleChoices.ADMIN)
+def list_users(request):
+    users = Usuario.objects.all()  # Use the correct model
+    return render(request, "accounts/list_users.html", {"users": users})

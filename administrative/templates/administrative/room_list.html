@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+    <section class="list-users">
+        <div class="container">
+            <h2 class="section-title">Lista de Usuários</h2>
+            <div class="table-container">
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Papel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.name }}</td> <!-- Exibe o nome completo do usuário -->
+                            <td>{{ user.get_role_display }}</td> <!-- Exibe o papel do usuário com o display name -->
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="no-data">Nenhum usuário encontrado.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="buttons">
+                <a href="{% url 'accounts:register' %}" class="button-1">Cadastrar Usuário</a>
+                <a href="{% url 'administrative:admin_dashboard' %}" class="button-1">Voltar</a>
+            </div>
+        </div>
+    </section>
+    <section class="list-section">
+        <div class="container">
+            <h2>Lista de Salas</h2>
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Bloco</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in rooms %}
+                    <tr>
+                        <td>{{ room.id }}</td>
+                        <td>{{ room.name }}</td>
+                        <td>{{ room.block.name }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="no-data">Nenhuma sala encontrada.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+{% endblock content %}

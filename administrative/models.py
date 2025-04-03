@@ -57,6 +57,14 @@ class Banca(models.Model):
         related_name="bancas_professores",
         limit_choices_to={"role": Usuario.RoleChoices.TEACHER},
     )
+    presidente = models.ForeignKey(
+        Usuario,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="bancas_presidente",
+        limit_choices_to={"role": Usuario.RoleChoices.TEACHER},
+    )
     sala = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="bancas")
     block = models.ForeignKey(Block, on_delete=models.CASCADE, related_name="bancas")
     alunos_nomes = models.TextField(
@@ -110,15 +118,15 @@ class AgendamentoSala(models.Model):
     sala = models.ForeignKey(
         Room, on_delete=models.CASCADE, related_name="agendamentos"
     )
-    
+
     bloco = models.ForeignKey(
         Block, on_delete=models.CASCADE, related_name="agendamentos", default=1
     )
-    
+
     coordenacao = models.ForeignKey(
         Coordination, on_delete=models.CASCADE, related_name="agendamentos", default=1
     )
-    
+
     materia = models.CharField(max_length=100)
     data = models.DateField()
     horario_inicio = models.TimeField()

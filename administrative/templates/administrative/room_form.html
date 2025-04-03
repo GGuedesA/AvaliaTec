@@ -1,15 +1,25 @@
 <!-- filepath: /c:/Users/Gabriel/Desktop/AvaliaTec/administrative/templates/administrative/room_form.html -->
 {% extends "base.html" %}
-
+{% load custom_filters %}
 {% block content %}
 <main>
     <section class="form-section">
         <div class="container">
-            <h2>Create Room</h2>
-            <form method="POST">
+            <h2>Cadastro de Sala</h2>
+            <form method="POST" class="styled-form">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn-green">Submit</button>
+                <div class="form-item">
+                    <label for="name">Nome da Sala</label>
+                    {{ form.name|add_class:"form-control" }}
+                </div>
+                <div class="form-item">
+                    <label for="block">Bloco</label>
+                    {{ form.block|add_class:"form-control" }}
+                </div>
+                <div class="buttons">
+                    <button type="submit" class="button-1">Salvar</button>
+                    <a href="{% url 'administrative:list_rooms' %}" class="button-1">Cancelar</a>
+                </div>
             </form>
         </div>
     </section>

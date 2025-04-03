@@ -86,25 +86,27 @@
 
         // Autocomplete para o campo de professor
         $(professorInput).autocomplete({
-            source: function(request, response) {
+            source: function (request, response) {
                 $.ajax({
                     url: "{% url 'administrative:get_professores' %}",
                     dataType: "json",
                     data: {
                         term: request.term
                     },
-                    success: function(data) {
-                        response(data.map(professor => ({
-                            label: professor.name,
-                            value: professor.id
-                        })));
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return {
+                                label: item.name, // Exibe o nome do professor
+                                value: item.id    // Retorna o ID do professor
+                            };
+                        }));
                     }
                 });
             },
             minLength: 1,
-            select: function(event, ui) {
-                selectedProfessor = ui.item.value;
-                $(professorInput).val(ui.item.label);
+            select: function (event, ui) {
+                selectedProfessor = ui.item.value; // Armazena o ID do professor
+                $(professorInput).val(ui.item.label); // Exibe o nome do professor no campo
                 return false;
             }
         });
@@ -237,6 +239,15 @@
         }
 
         // Adiciona o seletor de data ao campo de data
+        $(".datepicker").datepicker({
+            dateFormat: "yy-mm-dd"
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        // Inicializa o datepicker no campo de data
         $(".datepicker").datepicker({
             dateFormat: "yy-mm-dd"
         });

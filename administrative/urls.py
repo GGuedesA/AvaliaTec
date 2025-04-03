@@ -30,6 +30,10 @@ from .views import (
     confirm_agendamento,
     historico,
     sala,
+    admin_dashboard,
+    list_blocks,
+    list_coordinations,
+    list_rooms,
 )
 
 app_name = "administrative"
@@ -59,6 +63,7 @@ urlpatterns = [
     path("create_coordination/", create_coordination, name="create_coordination"),
     path("create_room/", create_room, name="create_room"),
     path("create_banca/", create_banca, name="create_banca"),
+    path("create-banca/", create_banca, name="create_banca"),
     path("create_agendamento/", create_agendamento, name="create_agendamento"),
     path("bancas/listar/", BancaListView.as_view(), name="listar_bancas"),
     path("salas/listar/", SalaListView.as_view(), name="listar_salas"),
@@ -82,4 +87,8 @@ urlpatterns = [
         name="confirm_agendamento",
     ),
     path("historico/", historico, name="historico"),
+    path("admin-dashboard/", admin_dashboard, name="admin_dashboard"),
+    path("list-blocks/", list_blocks, name="list_blocks"),
+    path("list-coordinations/", list_coordinations, name="list_coordinations"),
+    path("list-rooms/", list_rooms, name="list_rooms"),
 ]

@@ -10,6 +10,22 @@
             <h2>Create Banca</h2>
             <form id="bancaForm" method="POST">
                 {% csrf_token %}
+                <input type="hidden" id="banca_id" value="{{ banca.id|default:'' }}">
+
+                <div class="form-item">
+                    <label for="tipo">Tipo</label>
+                    <select id="tipo_select" class="form-control mr-2" style="width: auto;">
+                        {% for tipo in form.tipo.field.choices %}
+                            <option value="{{ tipo.0 }}">{{ tipo.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-item" id="presidente_field" style="display: none;">
+                    <label for="presidente">Presidente</label>
+                    <input type="text" id="presidente_input" class="form-control mr-2" placeholder="Digite o nome do presidente">
+                    <ul id="selected_presidente_list"></ul>
+                </div>
+
                 <div class="form-item">
                     <label for="orientador">Orientador</label>
                     <input type="text" id="orientador_input" class="form-control mr-2" placeholder="Digite o nome do orientador">
@@ -51,14 +67,7 @@
                     <label for="tema">Tema</label>
                     {{ form.tema|add_class:"form-control" }}
                 </div>
-                <div class="form-item">
-                    <label for="tipo">Tipo</label>
-                    <select id="tipo_select" class="form-control mr-2" style="width: auto;">
-                        {% for tipo in form.tipo.field.choices %}
-                            <option value="{{ tipo.0 }}">{{ tipo.1 }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                
                 <div class="form-item">
                     <label for="data">Data</label>
                     {{ form.data|add_class:"form-control" }}
@@ -121,7 +130,7 @@
         let selectedTipo = null;
 
         const coordinationSelect = document.getElementById("coordination_select");
-        let selectedCoordination = null;
+        let selectedCoordination = coordinationSelect.value || null;
 
         const alunoNomeInput = document.getElementById("aluno_nome_input");
         const addAlunoButton = document.getElementById("add_aluno_button");
@@ -130,6 +139,36 @@
 
         const blockInput = document.getElementById("block_input");
         let selectedBlock = null;
+
+        const presidenteInput = document.getElementById("presidente_input");
+        let selectedPresidente = null;
+
+        // Autocomplete para o campo de presidente
+        $(presidenteInput).autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{% url 'administrative:get_orientadores' %}",
+                    dataType: "json",
+                    data: {
+                        term: request.term
+                    },
+                    success: function(data) {
+                        response($.map(data, function(item) {
+                            return {
+                                label: item.name,
+                                value: item.id
+                            };
+                        }));
+                    }
+                });
+            },
+            minLength: 1,
+            select: function(event, ui) {
+                selectedPresidente = ui.item.value;
+                $(presidenteInput).val(ui.item.label);
+                return false;
+            }
+        });
     
         // Autocomplete para o campo de orientador
         $(orientadorInput).autocomplete({
@@ -242,24 +281,31 @@
 
         // Modifique a função fetchSalasPorBloco para adicionar a opção "-----"
         function fetchSalasPorBloco(blockId) {
-            $.ajax({
-                url: "{% url 'administrative:get_salas_por_bloco' %}",
-                data: {
-                    bloco_id: blockId
-                },
-                success: function(data) {
-                    salaSelect.innerHTML = "";
-                    const defaultOption = document.createElement("option");
-                    defaultOption.value = "";
-                    defaultOption.textContent = "-----";
-                    salaSelect.appendChild(defaultOption);
-                    data.forEach(function(sala) {
-                        const option = document.createElement("option");
-                        option.value = sala.id;
-                        option.textContent = sala.nome;
-                        salaSelect.appendChild(option);
-                    });
-                }
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: "{% url 'administrative:get_salas_por_bloco' %}",
+                    data: { bloco_id: blockId },
+                    success: function (data) {
+                        salaSelect.innerHTML = "";
+                        const defaultOption = document.createElement("option");
+                        defaultOption.value = "";
+                        defaultOption.textContent = "Selecione uma sala";
+                        salaSelect.appendChild(defaultOption);
+
+                        data.forEach(function (sala) {
+                            const option = document.createElement("option");
+                            option.value = sala.id;
+                            option.textContent = sala.nome;
+                            salaSelect.appendChild(option);
+                        });
+
+                        resolve(); // Indica que as salas foram carregadas
+                    },
+                    error: function (error) {
+                        console.error("Erro ao carregar salas:", error);
+                        reject(error);
+                    }
+                });
             });
         }
 
@@ -284,39 +330,47 @@
     
         addProfessorButton.addEventListener("click", function () {
             const professorName = $(professorBancaInput).val();
-    
+        
             if (selectedProfessorBanca && !selectedProfessores.includes(selectedProfessorBanca)) {
+                // Armazena o ID no array
                 selectedProfessores.push(selectedProfessorBanca);
-    
+        
+                // Criando elementos visuais
                 const professorButton = document.createElement("button");
                 professorButton.textContent = professorName;
                 professorButton.disabled = true;
                 professorButton.classList.add("selected-professor");
-    
+        
                 const removeButton = document.createElement("button");
                 removeButton.textContent = "X";
                 removeButton.classList.add("remove-professor");
-    
+        
                 const professorContainer = document.createElement("div");
                 professorContainer.classList.add("professor-container");
+                professorContainer.dataset.professorId = selectedProfessorBanca; // Armazena o ID no elemento
                 professorContainer.appendChild(professorButton);
                 professorContainer.appendChild(removeButton);
-    
+        
                 selectedProfessoresList.appendChild(professorContainer);
-    
+        
+                // Evento de remoção
                 removeButton.addEventListener("click", function () {
-                    selectedProfessoresList.removeChild(professorContainer);
-                    const index = selectedProfessores.indexOf(selectedProfessorBanca);
+                    const professorId = professorContainer.dataset.professorId;
+                    const index = selectedProfessores.indexOf(professorId);
                     if (index !== -1) {
                         selectedProfessores.splice(index, 1);
                     }
+                    professorContainer.remove();
+        
+                    console.log("Professores selecionados após remoção:", selectedProfessores);
                 });
-    
-                console.log(selectedProfessores);
+        
+                // Limpa o campo de input
                 $(professorBancaInput).val("");
                 selectedProfessorBanca = null;
             }
         });
+        
 
         addAlunoButton.addEventListener("click", function () {
             const alunoNome = alunoNomeInput.value.trim();
@@ -351,6 +405,16 @@
                 alunoNomeInput.value = "";
             }
         });
+
+        const presidenteField = document.getElementById("presidente_field");
+
+        tipoSelect.addEventListener("change", function () {
+            if (tipoSelect.value === "tcc") {
+                presidenteField.style.display = "block";
+            } else {
+                presidenteField.style.display = "none";
+            }
+        });
     
         const form = document.getElementById("bancaForm");
     
@@ -380,10 +444,10 @@
                 return;
             }
     
-            if (selectedProfessores.length < 3) {
+            {% comment %} if (selectedProfessores.length < 3) {
                 alert("Você deve selecionar pelo menos 3 professores.");
                 return;
-            }
+            } {% endcomment %}
 
             if (!selectedBlock) {
                 alert("Você deve selecionar um bloco.");
@@ -394,8 +458,9 @@
                 orientador: selectedOrientador,
                 co_orientador: selectedCoOrientador,
                 professores_banca: selectedProfessores,
+                presidente: selectedPresidente, // Adiciona o presidente
                 sala: selectedSala,
-                bloco: selectedBlock,  // Certifique-se de que o campo 'bloco' está incluído
+                bloco: selectedBlock,
                 alunos_nomes: selectedAlunos.join(", "),
                 tema: document.querySelector("[name='tema']").value,
                 tipo: selectedTipo,
@@ -403,27 +468,40 @@
                 horario_inicio: document.querySelector("[name='horario_inicio']").value,
                 horario_fim: document.querySelector("[name='horario_fim']").value,
                 status: document.querySelector("[name='status']").value,
-                coordination: selectedCoordination
+                coordination: selectedCoordination, // Adiciona o valor de coordination
             };
     
             console.log("Enviando JSON:", formData);
     
-            fetch("{% url 'administrative:create_banca' %}", {
-                method: "POST",
+            const bancaId = document.getElementById("banca_id").value;
+            const url = bancaId ? `/administrative/bancas/${bancaId}/edit/` : "{% url 'administrative:create_banca' %}";
+            const method = bancaId ? "PUT" : "POST";
+
+            fetch(url, {
+                method: method,
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
                 },
                 body: JSON.stringify(formData)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro na requisição: " + response.status);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
-                    alert("Banca criada com sucesso!");
-                    window.location.href = "{% url 'administrative:create_banca' %}";
+                    if (bancaId) {
+                        // Redirecionar para a lista de bancas após edição
+                        window.location.href = "{% url 'administrative:listar_bancas' %}";
+                    } else {
+                        // Redirecionar para a criação de uma nova banca após criação
+                        window.location.href = "{% url 'administrative:create_banca' %}";
+                    }
                 } else {
-                    console.error("Erro ao criar banca:", data.errors);
-                    alert("Erro ao criar banca. Verifique os dados e tente novamente.");
+                    alert("Erro ao salvar a banca.");
                 }
             })
             .catch(error => {
@@ -435,6 +513,183 @@
         const statusField = document.querySelector("select[name='status']");
         if (statusField) {
             statusField.value = "analise";
+        }
+
+        const bancaId = document.getElementById("banca_id").value;
+
+        if (bancaId) {
+            fetch(`/administrative/bancas/${bancaId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    // Preencher o campo tipo
+                    document.getElementById("tipo_select").value = data.tipo;
+                    selectedTipo = data.tipo;
+
+                    // Preencher o campo presidente
+                    document.getElementById("presidente_input").value = data.presidente?.name || "";
+                    selectedPresidente = data.presidente?.id || null;
+
+                    // Preencher o campo orientador
+                    document.getElementById("orientador_input").value = data.orientador?.name || "";
+                    selectedOrientador = data.orientador?.id || null;
+
+                    // Preencher o campo co-orientador
+                    document.getElementById("co_orientador_input").value = data.co_orientador?.name || "";
+                    selectedCoOrientador = data.co_orientador?.id || null;
+
+                    // Preencher o campo bloco
+                    document.getElementById("block_input").value = data.block?.name || "";
+                    selectedBlock = data.block?.id || null;
+
+                    // Se houver um bloco selecionado, carregar as salas associadas
+                    if (selectedBlock) {
+                        fetchSalasPorBloco(selectedBlock).then(() => {
+                            // Preencher o campo sala após carregar as opções
+                            document.getElementById("sala_select").value = data.sala?.id || "";
+                            selectedSala = data.sala?.id || null;
+                        });
+                    }
+
+                    // Preencher o campo coordenação
+                    document.getElementById("coordination_select").value = data.coordination?.id || "";
+                    selectedCoordination = data.coordination?.id || null;
+
+                    // Preencher outros campos
+                    document.querySelector("[name='tema']").value = data.tema;
+                    document.querySelector("[name='data']").value = data.data;
+                    document.querySelector("[name='horario_inicio']").value = data.horario_inicio;
+                    document.querySelector("[name='horario_fim']").value = data.horario_fim;
+
+                    // Preencher professores da banca
+                    data.professores_banca.forEach(professor => {
+                        addProfessorToList(professor.name, professor.id);
+                        selectedProfessores.push(professor.id);
+                    });
+
+                    // Preencher alunos
+                    data.alunos_nomes.split(", ").forEach(aluno => {
+                        addAlunoToList(aluno);
+                        selectedAlunos.push(aluno);
+                    });
+                });
+        }
+
+        function addProfessorToList(name, id) {
+            const professorButton = document.createElement("button");
+            professorButton.textContent = name;
+            professorButton.disabled = true;
+            professorButton.classList.add("selected-professor");
+
+            const removeButton = document.createElement("button");
+            removeButton.textContent = "X";
+            removeButton.classList.add("remove-professor");
+
+            const professorContainer = document.createElement("div");
+            professorContainer.classList.add("professor-container");
+            professorContainer.appendChild(professorButton);
+            professorContainer.appendChild(removeButton);
+
+            document.getElementById("selected_professores_list").appendChild(professorContainer);
+
+            removeButton.addEventListener("click", function () {
+                // Remover o professor da lista de IDs
+                const index = selectedProfessores.indexOf(id);
+                if (index !== -1) {
+                    selectedProfessores.splice(index, 1);
+                }
+
+                // Remover o elemento do DOM
+                professorContainer.remove();
+
+                console.log("Professores selecionados após remoção:", selectedProfessores);
+            });
+        }
+
+        function addAlunoToList(name) {
+            const alunoButton = document.createElement("button");
+            alunoButton.textContent = name;
+            alunoButton.disabled = true;
+            alunoButton.classList.add("selected-professor");
+
+            const removeButton = document.createElement("button");
+            removeButton.textContent = "X";
+            removeButton.classList.add("remove-professor");
+
+            const alunoContainer = document.createElement("div");
+            alunoContainer.classList.add("professor-container");
+            alunoContainer.appendChild(alunoButton);
+            alunoContainer.appendChild(removeButton);
+
+            document.getElementById("selected_alunos_list").appendChild(alunoContainer);
+
+            removeButton.addEventListener("click", function () {
+                // Remover o aluno da lista de nomes
+                const index = selectedAlunos.indexOf(name);
+                if (index !== -1) {
+                    selectedAlunos.splice(index, 1);
+                }
+
+                // Remover o elemento do DOM
+                alunoContainer.remove();
+
+                console.log("Alunos selecionados após remoção:", selectedAlunos);
+            });
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const tipoSelect = document.getElementById("tipo_select");
+        const presidenteField = document.getElementById("presidente_field");
+
+        // Verificar o valor inicial de "tipo" ao carregar a página
+        if (tipoSelect.value === "tcc") {
+            presidenteField.style.display = "block";
+        } else {
+            presidenteField.style.display = "none";
+        }
+
+        // Atualizar a exibição do campo "presidente" ao mudar o valor de "tipo"
+        tipoSelect.addEventListener("change", function () {
+            if (tipoSelect.value === "tcc") {
+                presidenteField.style.display = "block";
+            } else {
+                presidenteField.style.display = "none";
+            }
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const tipoSelect = document.getElementById("tipo_select");
+        const presidenteField = document.getElementById("presidente_field");
+
+        // Função para verificar e exibir/esconder o campo presidente
+        function verificarTipo() {
+            if (tipoSelect.value === "tcc") {
+                presidenteField.style.display = "block";
+            } else {
+                presidenteField.style.display = "none";
+            }
+        }
+
+        // Verificar o valor inicial de "tipo" ao carregar a página
+        verificarTipo();
+
+        // Atualizar a exibição do campo "presidente" ao mudar o valor de "tipo"
+        tipoSelect.addEventListener("change", verificarTipo);
+
+        const bancaId = document.getElementById("banca_id").value;
+
+        if (bancaId) {
+            fetch(`/administrative/bancas/${bancaId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    // Preencher o campo tipo
+                    document.getElementById("tipo_select").value = data.tipo;
+                    verificarTipo(); // Verificar novamente após carregar os dados
+
+                    // Preencher o campo presidente
+                    document.getElementById("presidente_input").value = data.presidente?.name || "";
+                });
         }
     });
 </script>

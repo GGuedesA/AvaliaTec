@@ -13,43 +13,55 @@
                 {% csrf_token %}
             
                 <div class="form-item nome">
-                    <label for="nome">Nome*</label>
-                    {{ form.name }}
+                    <label for="name">Nome*</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
                 </div>
             
                 <div class="form-item email">
                     <label for="email">E-mail*</label>
-                    {{ form.email }}
+                    <input type="email" id="email" name="email" class="form-control" required>
                 </div>
             
                 <div class="form-item cpf">
                     <label for="cpf">CPF*</label>
-                    {{ form.cpf }}
+                    <input type="text" id="cpf" name="cpf" class="form-control" required>
                 </div>
             
                 <div class="form-item role">
                     <label for="role">Tipo de Usuário*</label>
-                    {{ form.role }}
+                    <select id="role" name="role" class="form-control" required>
+                        <option value="admin">Administrador</option>
+                        <option value="teacher">Professor</option>
+                        <option value="secretary">Secretário</option>
+                    </select>
                 </div>
             
+                <!-- Campo de Coordenação (exibido apenas para secretários) -->
                 <div class="form-item coordination" id="coordination-field" style="display: none;">
-                    <label for="coordination">Coordenação*</label>
-                    {{ form.fk_coordination }}
+                    <label for="fk_coordination">Coordenação*</label>
+                    <select id="fk_coordination" name="fk_coordination" class="form-control">
+                        {% for coordination in coordinations %}
+                            <option value="{{ coordination.id }}">{{ coordination.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             
                 <div class="form-item senha">
-                    <label for="senha">Senha*</label>
-                    {{ form.password1 }}
+                    <label for="password1">Senha*</label>
+                    <input type="password" id="password1" name="password1" class="form-control" required>
                 </div>
             
                 <div class="form-item confirmar-senha">
-                    <label for="confirmar-senha">Confirmar senha*</label>
-                    {{ form.password2 }}
+                    <label for="password2">Confirmar senha*</label>
+                    <input type="password" id="password2" name="password2" class="form-control" required>
                 </div>
             
-                <button class="btn-green" type="submit">ENVIAR</button>
+                <button class="button-2" type="submit">Enviar</button>
+                <a href="{% url 'accounts:list_users' %}" class="button-1">Cancelar</a>
+                
             </form>
             
+            <!-- Script para exibir o campo de coordenação -->
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
                     const roleField = document.querySelector("select[name='role']");

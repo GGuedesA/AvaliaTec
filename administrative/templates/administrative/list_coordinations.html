@@ -1,0 +1,38 @@
+<!-- filepath: c:\Users\Gabriel\Desktop\AvaliaTec\administrative\templates\administrative\list_coordinations.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+    <section class="list-section">
+        <div class="container">
+            <h2>Lista de Coordenações</h2>
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Bloco</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for coordination in coordinations %}
+                    <tr>
+                        <td>{{ coordination.id }}</td>
+                        <td>{{ coordination.name }}</td>
+                        <td>{{ coordination.block.name }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="no-data">Nenhuma coordenação encontrada.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="buttons">
+                <a href="{% url 'administrative:create_coordination' %}" class="button-1">Cadastrar Coordenações</a>
+                <a href="{% url 'administrative:admin_dashboard' %}" class="button-1">Voltar</a>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock content %}

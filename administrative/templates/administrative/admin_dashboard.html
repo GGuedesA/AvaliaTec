@@ -1,0 +1,78 @@
+<!-- filepath: c:\Users\Gabriel\Desktop\AvaliaTec\administrative\templates\administrative\admin_dashboard.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+    <section class="admin-dashboard">
+        <div class="container">
+            <h2 class="dashboard-title">Painel de Administração</h2>
+            <div class="admin-options-grid">
+                <div class="card">
+                    <a href="{% url 'administrative:create_block' %}">
+                        <div class="card-content">
+                            <h3>Cadastrar Blocos</h3>
+                            <p>Adicione novos blocos ao sistema.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="card">
+                    <a href="{% url 'administrative:list_blocks' %}">
+                        <div class="card-content">
+                            <h3>Listar Blocos</h3>
+                            <p>Veja todos os blocos cadastrados.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="card">
+                    <a href="{% url 'administrative:create_coordination' %}">
+                        <div class="card-content">
+                            <h3>Cadastrar Coordenações</h3>
+                            <p>Adicione novas coordenações ao sistema.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="card">
+                    <a href="{% url 'administrative:list_coordinations' %}">
+                        <div class="card-content">
+                            <h3>Listar Coordenações</h3>
+                            <p>Veja todas as coordenações cadastradas.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="card">
+                    <a href="{% url 'administrative:create_room' %}">
+                        <div class="card-content">
+                            <h3>Cadastrar Salas</h3>
+                            <p>Adicione novas salas ao sistema.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="card">
+                    <a href="{% url 'administrative:list_rooms' %}">
+                        <div class="card-content">
+                            <h3>Listar Salas</h3>
+                            <p>Veja todas as salas cadastradas.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="card">
+                    <a href="{% url 'accounts:manage_users' %}">
+                        <div class="card-content">
+                            <h3>Cadastrar Usuários</h3>
+                            <p>Adicione novos usuários ao sistema.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="card">
+                    <a href="{% url 'accounts:list_users' %}">
+                        <div class="card-content">
+                            <h3>Listar Usuários</h3>
+                            <p>Veja todos os usuários cadastrados.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock content %}

@@ -5,37 +5,28 @@ from administrative.models import Banca, Coordination, Room, AgendamentoSala, Bl
 
 
 class BancaSerializer(serializers.ModelSerializer):
-    orientador = serializers.PrimaryKeyRelatedField(
-        queryset=Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER)
-    )
-    co_orientador = serializers.PrimaryKeyRelatedField(
-        queryset=Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER),
-        allow_null=True,
-        required=False,
-    )
-    professores_banca = serializers.PrimaryKeyRelatedField(
-        queryset=Usuario.objects.filter(role=Usuario.RoleChoices.TEACHER),
-        many=True,
-    )
+    presidente = serializers.SerializerMethodField()
+    orientador = serializers.SerializerMethodField()
+    co_orientador = serializers.SerializerMethodField()
+    professores_banca = serializers.SerializerMethodField()
 
-    sala = serializers.PrimaryKeyRelatedField(queryset=Room.objects.all())
+    sala = serializers.SerializerMethodField()
     sala_detalhes = serializers.SerializerMethodField()
 
     tipo = serializers.ChoiceField(choices=Banca.TipoBanca.choices)
     tipo_label = serializers.SerializerMethodField()
 
-    coordination = serializers.PrimaryKeyRelatedField(
-        queryset=Coordination.objects.all()
-    )
+    coordination = serializers.SerializerMethodField()
     coordination_detalhes = serializers.SerializerMethodField()
 
-    block = serializers.PrimaryKeyRelatedField(queryset=Block.objects.all())
+    block = serializers.SerializerMethodField()
     block_detalhes = serializers.SerializerMethodField()
 
     class Meta:
         model = Banca
         fields = [
             "id",
+            "presidente",
             "orientador",
             "co_orientador",
             "professores_banca",
@@ -53,8 +44,30 @@ class BancaSerializer(serializers.ModelSerializer):
             "horario_fim",
             "block",
             "block_detalhes",
+            "presidente",
         ]
 
+    def get_presidente(self, obj):
+        return {"id": obj.presidente.id, "name": obj.presidente.name} if obj.presidente else None
+
+    def get_orientador(self, obj):
+        return {"id": obj.orientador.id, "name": obj.orientador.name} if obj.orientador else None
+
+    def get_co_orientador(self, obj):
+        return {"id": obj.co_orientador.id, "name": obj.co_orientador.name} if obj.co_orientador else None
+
+    def get_professores_banca(self, obj):
+        return [{"id": professor.id, "name": professor.name} for professor in obj.professores_banca.all()]
+
+    def get_block(self, obj):
+        return {"id": obj.block.id, "name": obj.block.name} if obj.block else None
+
+    def get_sala(self, obj):
+        return {"id": obj.sala.id, "name": obj.sala.name} if obj.sala else None
+
+    def get_coordination(self, obj):
+        return {"id": obj.coordination.id, "name": obj.coordination.name} if obj.coordination else None
+    
     def get_sala_detalhes(self, obj):
         """Retorna detalhes da sala para facilitar a exibição"""
         return (

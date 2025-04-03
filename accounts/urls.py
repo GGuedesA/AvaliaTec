@@ -14,6 +14,8 @@ from .views import (
     CustomTokenBlacklistView,
     login_view,
     logout_view,
+    manage_users,
+    list_users,
 )
 
 app_name = "accounts"
@@ -31,4 +33,6 @@ urlpatterns = [
     # URLs para Secretários
     path("secretarios/", SecretaryList.as_view(), name="secretary_list"),
     path("secretarios/<int:pk>/", SecretaryDetail.as_view(), name="secretary_detail"),
+    path("manage-users/", manage_users, name="manage_users"),
+    path("list-users/", list_users, name="list_users"),
 ]
