@@ -341,33 +341,30 @@ class BancaListView(ListView):
     model = Banca
     template_name = "administrative/banca_list.html"
     context_object_name = "bancas"
-    paginate_by = 10  # Opcional: para adicionar paginação
+    paginate_by = 10
 
     def get_queryset(self):
         user = self.request.user
-        user_role = user.role  # Obtém o tipo de usuário
+        user_role = user.role
 
         if user_role == "secretary":
-            # Secretários veem bancas relacionadas à sua coordenação
             bancas = Banca.objects.filter(coordination=user.fk_coordination)
         else:
-            # Professores veem bancas onde estão envolvidos
             bancas = Banca.objects.filter(
-                Q(professores_banca=user) | Q(orientador=user) | Q(co_orientador=user)
-            )
+                Q(professores_banca=user) |
+                Q(orientador=user) |
+                Q(co_orientador=user)
+            ).distinct()  # <- Isso evita duplicatas
 
-        bancas = bancas.order_by("data")  # Ordena por data
+        bancas = bancas.order_by("data")
         for banca in bancas:
             banca.update_status()
         return bancas
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["user_role"] = (
-            self.request.user.role
-        )  # Adiciona o tipo de usuário ao contexto
+        context["user_role"] = self.request.user.role
         return context
-
 
 class SalaListView(ListView):
     model = AgendamentoSala

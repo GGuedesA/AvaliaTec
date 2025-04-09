@@ -42,6 +42,17 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
+  const criarBancaCard = document.getElementById('criarBancaCard');
+
+  if (criarBancaCard) {
+    criarBancaCard.addEventListener('click', function() {
+          const url = criarBancaCard.getAttribute('data-url');
+          window.location.href = url;
+      });
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
   const salaCard = document.getElementById('salaCard');
 
   if (salaCard) {
